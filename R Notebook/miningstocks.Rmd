@@ -1,0 +1,352 @@
+---
+title: "Bitcoin Mining Stock Analysis"
+date: "Last updated: `r Sys.Date()`"
+output: html_notebook
+---
+
+## Preliminary Work: Install/Load Packages
+
+To try and ensure that this R Notebook will run successfully, we'll use the [renv package](https://cran.r-project.org/web/packages/renv/index.html) to create a project-specific library of packages. This will allow us to install the packages that we need for this project without affecting any other projects that we may be working on. Additionally, the project library will track the specific versions of the dependency packages so that any updates to those packages will not break this project.
+
+The code chunk below will first install the renv package if it is not already installed. Then we will load the package. Next, we'll use the `restore()` function to install any packages listed in the renv.lock file. Once these packages are installed, we can load them into the R session using the `library()` commands. Below the code chunk, we'll list out the packages that will be used in the project demo. And if you run into any trouble using renv, then you can use the second code chunk below and that should be an even more reliable approach to install the required packages.
+
+```{r setup, results='hide', message=FALSE}
+# Install renv package if not already installed
+if(!"renv" %in% installed.packages()[,"Package"]) install.packages("renv")
+# Load renv package
+library(renv)
+# Use restore() to install any packages listed in the renv.lock file
+renv::restore(clean=TRUE, lockfile="../renv.lock")
+# Load in the packages
+library(quantmod)
+library(tidyverse)
+library(tseries)
+library(corrplot)
+library(jsonlite)
+```
+
+* The [quantmod package](https://cran.r-project.org/package=quantmod) contains tools for importing and analyzing financial data.
+* The [tidyverse package](https://www.tidyverse.org/) contains a suite of packages for data manipulation and visualization.
+* The [tseries package](https://cran.r-project.org/package=tseries) contains additional time series analysis functions that we will explore.
+* The [corrplot package](https://cran.r-project.org/package=corrplot) lets us create correlation plots.
+* The [jsonlite package](https://cran.r-project.org/package=jsonlite) lets us more easily import JSON data.
+* The [rmarkdown package](https://cran.r-project.org/package=rmarkdown) is used to generate this R Notebook.
+
+Since the rmarkdown functionality is built into RStudio, this last one is automatically loaded when you open RStudio. So no need to use the `library()` function for it. Another observation to make about the code chunk above is that it is labeled as `setup`, which is a special name, which the R Notebook will recognize and automatically run prior to running any other code chunk. This is useful for loading in packages and setting up other global options that will be used throughout the notebook. 
+
+Then if you wish to try and update the versions of the various R packages in the lock file, you can use the `renv::update()` function to update the packages in the project library. However, it is possible that these updates could break the code in this notebook. If so, you may need to adapt the code to work with the updated packages.
+
+My recommendation is to first run through the code using the versions of the packages in the lock file. Then if you want to try and update the packages, you can do so and then run through the code again to see if it still works. If not, you can always revert back to the lock file versions using the `renv::restore()` function.
+
+If you update the packages and get everything working successfully, then you can update the lock file using the `renv::snapshot()` function. This will update the lock file with the versions of the packages that are currently installed in the project library. Then you can commit the updated lock file to the repository so that others can use the updated versions of the packages.
+
+### Alternative Package Installation Code
+
+If you run into any trouble using renv in the code chunk above, then you can use the code chunk below to install the required packages for this analysis. This method will first check if you have already installed the packages. If any are missing, it will then install them. Then it will load the packages into the R session. A potential flaw in this approach compared to using renv is that it will simply install the latest versions of the packages, which could potentially break some of the code in this notebook if any of the updates aren't backwards compatible. 
+
+As long as you have downloaded the entire project repository, the renv chunk above will likely be managing the packages. Thus, the `eval=FALSE` option is used to prevent this chunk from running unless manually executed. So if you only downloaded this one Rmd file, this code chunk should take care of installing the packages for you.
+
+```{r setup2, results='hide', message=FALSE, eval=FALSE}
+# Create list of packages needed for this exercise
+list.of.packages = c("quantmod","tidyverse","tseries","corrplot","jsonlite","rmarkdown")
+# Check if any have not yet been installed
+new.packages = list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+# If any need to be installed, install them
+if(length(new.packages)) install.packages(new.packages)
+# Load in the packages
+library(quantmod)
+library(tidyverse)
+library(tseries)
+library(corrplot)
+library(jsonlite)
+```
+
+
+## Data Import and Cleaning
+
+First, let's use the `getSymbols()` function from the quantmod package to import the price data for several assets relevant to our analysis. In addition to the five mining stocks, we will also import the price data for Bitcoin and SPY to use as factors in explaining mining stock performance. Then we'll import data for inflation rates and treasury yields to compute real returns and risk premiums.
+
+### Stock and Crypto Data
+
+The `getSymbols()` function will automatically create an xts object for each asset with the OHLC (open, high, low, close) price series. The `src` argument specifies the source of the data, which in this case is Yahoo Finance. The `from` and `to` arguments specify the date range of the data to be imported. Although MARA stock goes back to mid-2012, the price series for BTC only goes back to late 2014. So we will pull all the daily stock data beginning in October 2014. For the other mining stocks, their series will begin when they first became publicly traded.
+
+```{r assetdata, results='hide'}
+startdate = "2014-10-01"
+tickers = c("BTC-USD",
+            "MARA",
+            "CLSK",
+            "RIOT",
+            "CIFR",
+            "HUT",
+            "BTDR",
+            "SPY")
+getSymbols(tickers,
+           src="yahoo",
+           from=startdate,
+           to=Sys.Date())
+```
+
+Next, we will convert the daily price data to monthly price data using the `to.monthly()` function from the xts package. This will allow us to analyze the data at a higher level of aggregation.
+
+```{r assetcleaning}
+BTCdaily = `BTC-USD`
+BTCmonth = to.monthly(BTCdaily, name=NULL)
+MARAdaily = MARA
+MARAmonth = to.monthly(MARAdaily, name=NULL)
+CLSKdaily = CLSK
+CLSKmonth = to.monthly(CLSKdaily, name=NULL)
+RIOTdaily = RIOT
+RIOTmonth = to.monthly(RIOTdaily, name=NULL)
+CIFRdaily = CIFR
+CIFRmonth = to.monthly(CIFRdaily, name=NULL)
+HUTdaily = HUT
+HUTmonth = to.monthly(HUTdaily, name=NULL)
+BTDRdaily = BTDR
+BTDRmonth = to.monthly(BTDRdaily, name=NULL)
+SPYdaily = SPY
+SPYmonth = to.monthly(SPYdaily, name=NULL)
+```
+
+Now that we have each of the assets return series saved as daily and monthly series, let's compute the annualized returns for each. To do this, we can assume continuous compounding and use the log returns to calculate the annualized returns. If you compare the daily data for BTC and any of the stocks, you'll notice that BTC trades 365 days a year, while stock data typically is focused on the roughly 250 trading days per year. To try and resolve this discrepancy, we'll just annualize all of the daily returns using 365 days per year.
+
+```{r assetreturns}
+BTCdaily$Return = diff(log(BTCdaily$`BTC-USD.Adjusted`))*365*100
+BTCmonth$Return = diff(log(BTCmonth$Adjusted))*12*100
+MARAdaily$Return = diff(log(MARAdaily$MARA.Adjusted))*365*100 
+MARAmonth$Return = diff(log(MARAmonth$Adjusted))*12*100
+CLSKdaily$Return = diff(log(CLSKdaily$CLSK.Adjusted))*365*100
+CLSKmonth$Return = diff(log(CLSKmonth$Adjusted))*12*100
+RIOTdaily$Return = diff(log(RIOTdaily$RIOT.Adjusted))*365*100
+RIOTmonth$Return = diff(log(RIOTmonth$Adjusted))*12*100
+CIFRdaily$Return = diff(log(CIFRdaily$CIFR.Adjusted))*365*100
+CIFRmonth$Return = diff(log(CIFRmonth$Adjusted))*12*100
+HUTdaily$Return = diff(log(HUTdaily$HUT.Adjusted))*365*100
+HUTmonth$Return = diff(log(HUTmonth$Adjusted))*12*100
+BTDRdaily$Return = diff(log(BTDRdaily$BTDR.Adjusted))*365*100
+BTDRmonth$Return = diff(log(BTDRmonth$Adjusted))*12*100
+SPYdaily$Return = diff(log(SPYdaily$SPY.Adjusted))*365*100
+SPYmonth$Return = diff(log(SPYmonth$Adjusted))*12*100
+```
+
+
+### Economic Data
+
+Now let's collect some economic from [FRED](https://fred.stlouisfed.org/) to help us analyze the data. We will import data for the Consumer Price Index (CPI) and the 10-year Treasury yield. The CPI data will be used to compute monthly inflation rates, and the 10-year Treasury yields will be used to represent the risk-free rate of return.
+
+```{r econdata}
+fredassets = c("CPIAUCSL","DGS10")
+getSymbols(fredassets,
+           src="FRED",
+           from="2014-10-01",
+           to=Sys.Date())
+```
+
+The CPI is short for the Consumer Price Index. This units of this data is price levels. so to obtain monthly inflation rates, by taking the log difference of the CPI series and annualizing it.
+
+```{r inflationcleaning}
+# Compute the annualized inflation rate in percentage units
+INFmonth = diff(log(CPIAUCSL))*12*100
+# Create a daily xts object with the same length as the stock data
+INFdaily = xts(order.by=seq(min(index(INFmonth)), length=nrow(BTCdaily), by="day"))
+# Merge to monthly inflation observations
+INFdaily = merge(INFdaily, INFmonth)
+# Impute missing values using linear interpolation
+INFdaily = na.approx(INFdaily, na.rm = FALSE)
+```
+
+Unlike the stock and CPI variables, which are measured in prices or levels, the 10-year treasury yield is an annualized rate, already in percentage units. So while we can use `to.monthly()` to convert the daily series into a monthly OHLC xts object, it'd be more appropriate to use the monthly average yield. This is done below using some tools from the dplyr and lubridate packages.
+
+```{r dgs10cleaning}
+# Generate monthly OHLC data for the 10-year treasury yield
+DGS10daily = DGS10
+DGS10month = to.monthly(DGS10daily, name=NULL)
+# Aggregate to monthly frequency and compute means
+DGS10dailydf = as.data.frame(DGS10daily)
+DGS10dailydf$date = index(DGS10daily)
+DGS10monthmean =  mutate(DGS10dailydf, date =floor_date(date,"month")) |> 
+  group_by(date) |> summarise(DGS10 = mean(DGS10, na.rm=TRUE))
+# Add the means to the monthly xts object
+DGS10month$Mean = DGS10monthmean$DGS10
+```
+
+
+### Bitcoin Mining Data
+
+Next, we'll use [mempool.space](https://mempool.space/) to collect data on Bitcoin mining difficulty and hashrate. The mining difficulty is a measure of how difficult it is to find a new block on the Bitcoin blockchain, while the hashrate is a measure of the total computational power of the Bitcoin network. Both of these variables can have an impact on the profitability of Bitcoin mining and the performance of Bitcoin mining stocks.
+
+First, specify the API base and endpoint for the hashrate (see the [mempool.space API Documentation](https://mempool.space/docs/api/rest) for more details). Then make the API call and read the JSON response with the `fromJSON()` function from the jsonlite package.
+
+```{r hashratedata}
+# Build endpoint url for hashrates
+mempoolbase = "https://mempool.space/api/v1/"
+hashrateendpt = "mining/hashrate/pools/"
+hashrateurl = paste(mempoolbase, hashrateendpt, sep="")
+# Make API call and read JSON response
+hashrateresponse = fromJSON(hashrateurl)
+```
+
+Next, we'll extract the hashrate and difficulty data from the JSON response and reformat the dates from Unix time to R date format. Then we'll convert the daily hashrate data to monthly data by taking the average hashrate for each month. This will allow us to analyze the data at a higher level of aggregation.
+
+```{r hashratecleaning}
+# Extract hashrate table and difficulty table
+hashratedf = hashrateresponse$hashrates
+difficultydf = hashrateresponse$difficulty
+# Reformat dates from unix time to R date
+hashratedf$date = hashratedf$timestamp |> as.POSIXct() |> as.Date()
+difficultydf$date = difficultydf$time |> as.POSIXct() |> as.Date()
+# Convert daily hashrate data to monthly averages
+hashratemonthdf =  mutate(hashratedf, date =floor_date(date,"month")) |> 
+  group_by(date) |> summarise(avgHashrate = mean(avgHashrate, na.rm=TRUE))
+```
+
+Now that we have the hashrate data at both daily and monthly frequencies, let's focus a bit on the cleaning. The Time Series R Notebook in this repository demonstrates how the bitcoin price series (and many financial variables) are non-stationary time series. Hence, that was why we used the log returns to compute the annualized returns.
+
+For the hashrate data, let's anticipate that the series is non-stationary and compute a differenced series. As with the stock series and economic data, we'll compute an annualized growth rate. Then we can test the stationarity of each series using the Augmented Dickey-Fuller test.
+
+```{r hashrategrowth}
+# Calculate daily hashrate growth and annualize it
+hashratedf$annHashrateGrowth = c(NA, diff(log(hashratedf$avgHashrate))*365*100)
+# Calculate monthly hashrate growth and annualize it
+hashratemonthdf$annHashrateGrowth = c(NA, diff(log(hashratemonthdf$avgHashrate))*12*100)
+```
+
+To demonstrate non-stationarity of the hashrate series and stationarity of the growth rates, the Augmented Dickey-Fuller test will be used. The null hypothesis of the ADF test is that the series has a unit root, which implies that the series is non-stationary. If the p-value of the test is less than 0.05, then we can reject the null hypothesis and conclude that the series is stationary. Note the removal of the first 8 observations from the daily test, as the hashrate data in the first few days has some 0's, which produce some Inf and -Inf growth rates.
+
+```{r hashrateadf}
+adf.test(hashratedf$avgHashrate[-c(1:8)])
+adf.test(hashratedf$annHashrateGrowth[-c(1:8)])
+adf.test(hashratemonthdf$avgHashrate[-1])
+adf.test(hashratemonthdf$annHashrateGrowth[-1])
+```
+
+After cleaning the hashrate data, let's reformat to an xts object and remove any observations prior to the start of the price series.
+
+```{r hashrateclean}
+# Preview first 10 rows of hash rate data
+head(hashratedf, 10)
+# Convert data frame to xts object
+hashratexts = xts(hashratedf, order.by=hashratedf$date)
+# Remove observations prior to startdate
+hashratexts = hashratexts[paste(as.character(startdate), "/", sep="")]
+# Convert monthly data to xts object
+hashratemonthxts = xts(hashratemonthdf, order.by=hashratemonthdf$date)
+# Remove observations prior to startdate
+hashratemonthxts = hashratemonthxts[paste(as.character(startdate), "/", sep="")]
+```
+
+In addition to the hashrate data, the response from the mempool.space API includes the mining difficulty, which is a measure of how difficult it is to find a new block on the Bitcoin blockchain. The difficulty is adjusted every 2016 blocks to ensure that the average time between blocks is approximately 10 minutes. The difficulty is a key factor in determining the profitability of Bitcoin mining, as it affects the amount of computational power required to mine new blocks.
+
+Since the difficulty adjustment frequency is measured in blocks, this time series is much less uniform than the daily and monthly data for the other variables. To make the data more uniform, we'll fill the intermediate days with the last observed value. This is known as the last-observation-carried-forward method. Then we'll convert the daily difficulty data to monthly data by taking the average difficulty for each month. See the comments in the code chunk for more details.
+
+```{r difficultycleaning}
+# Convert mining difficulty series to xts object
+difficultyxts = xts(difficultydf, order.by=difficultydf$date)
+# Create a daily xts object with the same length as the hashrate data
+difficultydailyxts = xts(order.by=seq(min(difficultydf$date), length=length(hashratedf$date), by="day"))
+# Merge the daily difficulty data with the daily hashrate data
+difficultydailyxts = merge(difficultydailyxts, difficultyxts)
+# Impute missing values using last-observation-carried-forward method
+difficultydailyxts = na.locf(difficultydailyxts)
+# Fix the date column
+#difficultydailyxts = subset(difficultydailyxts, select=-date) 
+difficultydailydf = data.frame(difficultydailyxts)
+difficultydailydf$date = index(difficultydailyxts)
+# Convert daily hashrate data to monthly averages
+difficultymonthdf =  mutate(difficultydailydf, date=floor_date(date,"month")) |> 
+  group_by(date) |> summarise(avgDifficulty=mean(difficulty, na.rm=TRUE))
+# Compute difficulty growth rates
+difficultydailydf$annDifficultyGrowth = c(NA, diff(log(difficultydailydf$difficulty))*365*100)
+difficultymonthdf$annDifficultyGrowth = c(NA, diff(log(difficultymonthdf$avgDifficulty))*12*100)
+# Estimate ADF tests
+adf.test(difficultydailydf$difficulty[-c(1:8)])
+adf.test(difficultydailydf$annDifficultyGrowth[-c(1:8)])
+adf.test(difficultymonthdf$avgDifficulty[-1])
+adf.test(difficultymonthdf$annDifficultyGrowth[-1])
+# Convert monthly data to xts object
+difficultymonthxts = xts(difficultymonthdf, order.by=difficultymonthdf$date)
+# Add annDifficultyGrowth to daily xts object
+difficultydailyxts$annDifficultyGrowth = xts(difficultydailydf$annDifficultyGrowth, order.by=index(difficultydailyxts))
+# Remove observations prior to startdate
+difficultydailyxts = difficultydailyxts[paste(as.character(startdate), "/", sep="")]
+difficultymonthxts = difficultymonthxts[paste(as.character(startdate), "/", sep="")]
+```
+
+
+### Merge Final Dataset
+
+Now that we have the annualized daily returns and annualized monthly returns, let's consolidate those values into a single data frame for each frequency. This will make it easier to analyze the data and create visualizations.
+
+```{r finalmerges}
+# Merge the daily returns into a single data frame
+dailyreturns = merge(INFdaily$CPIAUCSL,
+                     DGS10daily$DGS10,
+                     BTCdaily$Return,
+                     MARAdaily$Return,
+                     CLSKdaily$Return,
+                     RIOTdaily$Return,
+                     CIFRdaily$Return,
+                     HUTdaily$Return,
+                     BTDRdaily$Return,
+                     SPYdaily$Return,
+                     hashratexts$annHashrateGrowth,
+                     difficultydailyxts$annDifficultyGrowth)
+colnames(dailyreturns) = c("INF","RF","BTC","MARA","CLSK","RIOT","CIFR","HUT","BTDR","SPY","Hashrate","Difficulty")
+# Merge the monthly returns into a single data frame
+monthlyreturns = merge(INFmonth$CPIAUCSL,
+                       DGS10month$Mean,
+                       BTCmonth$Return,
+                       MARAmonth$Return,
+                       CLSKmonth$Return,
+                       RIOTmonth$Return,
+                       CIFRmonth$Return,
+                       HUTmonth$Return,
+                       BTDRmonth$Return,
+                       SPYmonth$Return,
+                       hashratemonthxts$annHashrateGrowth,
+                       difficultymonthxts$annDifficultyGrowth)
+colnames(monthlyreturns) = c("INF","RF","BTC","MARA","CLSK","RIOT","CIFR","HUT","BTDR","SPY","Hashrate","Difficulty")
+# Drop first 31 observations from daily data since NA inflation rates
+dailyreturns = dailyreturns["2014-11-01/",]
+# Only need to drop first monthly observation
+monthlyreturns = monthlyreturns["2014-11-01/",]
+# Trim any observations since the last inflation reading (typically 60-90 days)
+ntrim = sum(is.na(tail(dailyreturns$INF,100)))
+daily_final = dailyreturns[1:(nrow(dailyreturns)-ntrim),]
+# Same for monthly series (typically 1-2 observations)
+ntrim = sum(is.na(tail(monthlyreturns$INF)))
+monthly_final = monthlyreturns[1:(nrow(monthlyreturns)-ntrim),]
+```
+
+
+## Data Analysis
+
+Now that we have the daily and monthly returns for each asset, we can analyze the data to better understand the performance of each asset. To start, let's compare the return series for each asset by plotting the daily and monthly returns.
+
+We will start by calculating the average annual returns and standard deviations for each asset. Then we will compute the correlation matrix for the daily and monthly returns and create a correlation plot to visualize the relationships between the assets.
+
+```{r meanstddev}
+# Compute the average annual returns for the daily series
+colMeans(daily_final, na.rm=TRUE) |> round(2)
+# Compute the standard deviation of the annual returns for the daily series
+apply(daily_final, 2, sd, na.rm=TRUE) |> round(2)
+# Compute the average annual returns for the monthly series
+colMeans(monthly_final, na.rm=TRUE) |> round(2)
+# Compute the standard deviation of the annual returns for the monthly series
+apply(monthly_final, 2, sd, na.rm=TRUE) |> round(2)
+```
+
+However, an important note to make about the results above is that only BTC, MARA, and SPY have data going back to 2014. So the other mining stocks each have shorter time frames, which can have an impact on the comparisons above.
+
+Then below, we will explore the correlations between the asset return series. For each frequency, we'll generate a correlation matrix and a correlation plot to visualize the relationships between the assets. Note the use of the `use="pairwise.complete"` argument in the `cor()` function to handle missing values in the data, and the use of the `|>` operator to round the answers to two decimal places.
+
+```{r corrplot}
+# Compute the correlation matrix for the daily returns
+cor(dailyreturns, use="pairwise.complete") |> round(2)
+# Create a correlation plot for the daily returns
+corrplot(cor(dailyreturns, use="pairwise.complete"), method="color")
+
+# Compute the correlation matrix for the monthly returns
+cor(monthlyreturns, use="pairwise.complete") |> round(2)
+# Create a correlation plot for the monthly returns
+corrplot(cor(monthlyreturns, use="pairwise.complete"), method="color")
+```
