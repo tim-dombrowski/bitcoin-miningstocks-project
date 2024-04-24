@@ -1,8 +1,17 @@
-# Bitcoin Mining Stock Project
+# Bitcoin Mining Stocks Project
 
 ### Overview
 
-This project aims to analyze the performance of publicly traded bitcoin mining companies and their relationship to the price of bitcoin. The project will focus on the following companies: Marathon Digital Holdings (MARA), Cleanspark (CLSK), Riot Blockchain (RIOT), Cipher Mining (CIFR), Hut 8 Mining (HUT), and Bitdeer Technologies Group (BTDR). In addition to the relationship between these stocks and the price of bitcoin (BTC), we will also incorporate other mining-related factors that may influence the stock prices of these companies. These include the mining hashrate, difficulty, and trading volume of BTC.
+This project aims to analyze the performance of publicly traded bitcoin mining companies and their relationship to the price of bitcoin. The project will focus on the following companies: 
+
+* [Marathon Digital Holdings (MARA)](https://www.mara.com/),
+* [Cleanspark (CLSK)](https://www.cleanspark.com/),
+* [Riot Blockchain (RIOT)](https://www.riotplatforms.com/),
+* [Cipher Mining (CIFR)](https://www.ciphermining.com/),
+* [Hut 8 Mining (HUT)](https://hut8.com/), and
+* [Bitdeer Technologies Group (BTDR)](https://www.bitdeer.com/).
+
+In addition to the relationship between these stocks and the price of bitcoin (BTC), we will also incorporate other mining-related factors that may influence the stock prices of these companies. These include the mining hashrate, difficulty, and trading volume of BTC.
 
 ### Other Bitcoin-Related Projects
 
