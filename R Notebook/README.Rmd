@@ -31,6 +31,7 @@ library(stargazer)
 * The [tseries package](https://cran.r-project.org/package=tseries) contains additional time series analysis functions that we will explore.
 * The [corrplot package](https://cran.r-project.org/package=corrplot) lets us create correlation plots.
 * The [jsonlite package](https://cran.r-project.org/package=jsonlite) lets us more easily import JSON data.
+* The [stargazer package](https://cran.r-project.org/package=stargazer) is used to generate formally typeset tables of regression results.
 * The [rmarkdown package](https://cran.r-project.org/package=rmarkdown) is used to generate this R Notebook.
 
 Since the rmarkdown functionality is built into RStudio, this last one is automatically loaded when you open RStudio. So no need to use the `library()` function for it. Another observation to make about the code chunk above is that it is labeled as `setup`, which is a special name, which the R Notebook will recognize and automatically run prior to running any other code chunk. This is useful for loading in packages and setting up other global options that will be used throughout the notebook. 
@@ -49,7 +50,7 @@ As long as you have downloaded the entire project repository, the renv chunk abo
 
 ```{r setup2, results='hide', message=FALSE, eval=FALSE}
 # Create list of packages needed for this exercise
-list.of.packages = c("quantmod","tidyverse","tseries","corrplot","jsonlite","rmarkdown")
+list.of.packages = c("quantmod","tidyverse","tseries","corrplot","jsonlite","stargazer","rmarkdown")
 # Check if any have not yet been installed
 new.packages = list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 # If any need to be installed, install them
@@ -60,6 +61,7 @@ library(tidyverse)
 library(tseries)
 library(corrplot)
 library(jsonlite)
+library(stargazer)
 ```
 
 
@@ -454,6 +456,8 @@ apply(monthly_excess, 2, sd, na.rm=TRUE) |> round(2)
 
 However, an important note to make about the results above is that only BTC, MARA, and SPY have data going back to 2014. So the other mining stocks each have shorter time frames. Thus, we should be cautious to draw any comparative conclusions from the stats above.
 
+### Subset to Final Datasets
+
 To create a more comparable basis for analysis, let's create a subset of the monthly series that only includes observations where all assets have data. 
 
 ```{r subsetdata}
@@ -686,11 +690,15 @@ Let's start by generating summary statistics for the final monthly dataset. We'l
 # Generate summary statistics for the final nominal returns
 stargazer(monthly_nominal_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 # Generate and save output to a LaTeX file
 stargazer(monthly_nominal_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_nominal.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset nominal returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -701,11 +709,15 @@ stargazer(monthly_nominal_final,
 # Generate summary statistics for the final real returns
 stargazer(monthly_real_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 # Generate and save output to a LaTeX file
 stargazer(monthly_real_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_real.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset real returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -716,11 +728,15 @@ stargazer(monthly_real_final,
 # Generate summary statistics for the final real returns
 stargazer(monthly_excess_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 # Generate and save output to a LaTeX file
 stargazer(monthly_excess_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_excess.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset excess returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -735,10 +751,14 @@ Now let's generate tables for the model results for each of the mining stocks. T
 # Generate summary statistics for the final real returns
 stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_MARA.tex",
           title="Factor Model Results for Marathon Digital Holdings (MARA). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -750,10 +770,14 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_CLSK.tex",
           title="Factor Model Results for Cleanspark (CLSK). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -765,10 +789,14 @@ stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_RIOT.tex",
           title="Factor Model Results for Riot Blockchain (RIOT). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -780,10 +808,14 @@ stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_CIFR.tex",
           title="Factor Model Results for Cipher Mining (CIFR). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -795,10 +827,14 @@ stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_HUT.tex",
           title="Factor Model Results for Hut 8 Mining (HUT). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -810,10 +846,14 @@ stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 # Generate and save output to a LaTeX file
 stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_BTDR.tex",
           title="Factor Model Results for Bitdeer (BTDR). Table generated with the stargazer R package (Hlavac, 2022).", 

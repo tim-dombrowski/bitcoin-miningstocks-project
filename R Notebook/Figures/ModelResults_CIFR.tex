@@ -1,37 +1,38 @@
 
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: Tue, Apr 23, 2024 - 18:51:21
+% Date and time: Tue, Jul 09, 2024 - 16:40:32
+% Requires LaTeX packages: dcolumn 
 \begin{table}[!htbp] \centering 
   \caption{Factor Model Results for Cipher Mining (CIFR). Table generated with the stargazer R package (Hlavac, 2022).} 
   \label{ModelResults_CIFR} 
 \large 
-\begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+\begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
 \cline{2-6} 
 \\[-1.8ex] & \multicolumn{5}{c}{CIFR} \\ 
-\\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+\\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
 \hline \\[-1.8ex] 
- SPY & 2.319$^{**}$ & 0.441 & 0.401 & 0.348 & 0.364 \\ 
-  & (1.026) & (1.093) & (1.113) & (1.097) & (1.115) \\ 
+ SPY & 2.38^{**} & 0.43 & 0.39 & 0.33 & 0.36 \\ 
+  & (0.98) & (1.05) & (1.08) & (1.06) & (1.08) \\ 
   & & & & & \\ 
- BTC &  & 0.983$^{***}$ & 1.039$^{***}$ & 1.062$^{***}$ & 1.022$^{***}$ \\ 
-  &  & (0.320) & (0.350) & (0.329) & (0.351) \\ 
+ BTC &  & 0.99^{***} & 1.03^{***} & 1.06^{***} & 1.01^{***} \\ 
+  &  & (0.31) & (0.33) & (0.32) & (0.34) \\ 
   & & & & & \\ 
- Hashrate &  &  & $-$0.450 &  & 0.560 \\ 
-  &  &  & (1.059) &  & (1.484) \\ 
+ Hashrate &  &  & -0.28 &  & 0.72 \\ 
+  &  &  & (0.96) &  & (1.39) \\ 
   & & & & & \\ 
- Difficulty &  &  &  & $-$1.085 & $-$1.489 \\ 
-  &  &  &  & (1.077) & (1.531) \\ 
+ Difficulty &  &  &  & -0.93 & -1.49 \\ 
+  &  &  &  & (1.01) & (1.49) \\ 
   & & & & & \\ 
- Constant & $-$43.483 & $-$48.046 & $-$18.551 & 21.818 & 11.178 \\ 
-  & (65.258) & (57.675) & (90.748) & (90.179) & (95.841) \\ 
+ Constant & -53.67 & -55.13 & -37.51 & 2.50 & -7.80 \\ 
+  & (61.74) & (54.32) & (81.38) & (83.32) & (86.64) \\ 
   & & & & & \\ 
 \hline \\[-1.8ex] 
-Observations & 32 & 32 & 32 & 32 & 32 \\ 
-R$^{2}$ & 0.146 & 0.355 & 0.359 & 0.378 & 0.381 \\ 
-Adjusted R$^{2}$ & 0.117 & 0.311 & 0.291 & 0.311 & 0.289 \\ 
+Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+R$^{2}$ & \multicolumn{1}{c}{0.16} & \multicolumn{1}{c}{0.37} & \multicolumn{1}{c}{0.37} & \multicolumn{1}{c}{0.38} & \multicolumn{1}{c}{0.39} \\ 
+Adjusted R$^{2}$ & \multicolumn{1}{c}{0.13} & \multicolumn{1}{c}{0.33} & \multicolumn{1}{c}{0.31} & \multicolumn{1}{c}{0.32} & \multicolumn{1}{c}{0.31} \\ 
 \hline 
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 

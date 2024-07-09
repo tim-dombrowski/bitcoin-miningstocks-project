@@ -1,6 +1,6 @@
 Bitcoin Mining Stock Analysis
 ================
-Last updated: 2024-04-23
+Last updated: 2024-07-09
 
 ## Preliminary Work: Install/Load Packages
 
@@ -50,6 +50,8 @@ library(stargazer)
   lets us create correlation plots.
 - The [jsonlite package](https://cran.r-project.org/package=jsonlite)
   lets us more easily import JSON data.
+- The [stargazer package](https://cran.r-project.org/package=stargazer)
+  is used to generate formally typeset tables of regression results.
 - The [rmarkdown package](https://cran.r-project.org/package=rmarkdown)
   is used to generate this R Notebook.
 
@@ -100,7 +102,7 @@ should take care of installing the packages for you.
 
 ``` r
 # Create list of packages needed for this exercise
-list.of.packages = c("quantmod","tidyverse","tseries","corrplot","jsonlite","rmarkdown")
+list.of.packages = c("quantmod","tidyverse","tseries","corrplot","jsonlite","stargazer","rmarkdown")
 # Check if any have not yet been installed
 new.packages = list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 # If any need to be installed, install them
@@ -111,6 +113,7 @@ library(tidyverse)
 library(tseries)
 library(corrplot)
 library(jsonlite)
+library(stargazer)
 ```
 
 ## Data Import and Cleaning
@@ -394,7 +397,7 @@ adf.test(hashratedf$avgHashrate[-c(1:8)])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  hashratedf$avgHashrate[-c(1:8)]
-    ## Dickey-Fuller = 4.0288, Lag order = 17, p-value = 0.99
+    ## Dickey-Fuller = 1.7045, Lag order = 17, p-value = 0.99
     ## alternative hypothesis: stationary
 
 ``` r
@@ -408,7 +411,7 @@ adf.test(hashratedf$annHashrateGrowth[-c(1:8)])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  hashratedf$annHashrateGrowth[-c(1:8)]
-    ## Dickey-Fuller = -20.41, Lag order = 17, p-value = 0.01
+    ## Dickey-Fuller = -20.544, Lag order = 17, p-value = 0.01
     ## alternative hypothesis: stationary
 
 ``` r
@@ -422,7 +425,7 @@ adf.test(hashratemonthdf$avgHashrate[-1])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  hashratemonthdf$avgHashrate[-1]
-    ## Dickey-Fuller = 4.5893, Lag order = 5, p-value = 0.99
+    ## Dickey-Fuller = 1.8446, Lag order = 5, p-value = 0.99
     ## alternative hypothesis: stationary
 
 ``` r
@@ -436,7 +439,7 @@ adf.test(hashratemonthdf$annHashrateGrowth[-1])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  hashratemonthdf$annHashrateGrowth[-1]
-    ## Dickey-Fuller = -4.1472, Lag order = 5, p-value = 0.01
+    ## Dickey-Fuller = -4.1923, Lag order = 5, p-value = 0.01
     ## alternative hypothesis: stationary
 
 After cleaning the hashrate data, let’s reformat to an xts object and
@@ -551,7 +554,7 @@ adf.test(difficultydailydf$difficulty[-c(1:8)])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  difficultydailydf$difficulty[-c(1:8)]
-    ## Dickey-Fuller = 6.1668, Lag order = 17, p-value = 0.99
+    ## Dickey-Fuller = 2.8301, Lag order = 17, p-value = 0.99
     ## alternative hypothesis: stationary
 
 ``` r
@@ -565,7 +568,7 @@ adf.test(difficultydailydf$annDifficultyGrowth[-c(1:8)])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  difficultydailydf$annDifficultyGrowth[-c(1:8)]
-    ## Dickey-Fuller = -13.568, Lag order = 17, p-value = 0.01
+    ## Dickey-Fuller = -13.666, Lag order = 17, p-value = 0.01
     ## alternative hypothesis: stationary
 
 ``` r
@@ -579,7 +582,7 @@ adf.test(difficultymonthdf$avgDifficulty[-1])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  difficultymonthdf$avgDifficulty[-1]
-    ## Dickey-Fuller = 4.6762, Lag order = 5, p-value = 0.99
+    ## Dickey-Fuller = 1.9686, Lag order = 5, p-value = 0.99
     ## alternative hypothesis: stationary
 
 ``` r
@@ -590,7 +593,7 @@ adf.test(difficultymonthdf$annDifficultyGrowth[-1])
     ##  Augmented Dickey-Fuller Test
     ## 
     ## data:  difficultymonthdf$annDifficultyGrowth[-1]
-    ## Dickey-Fuller = -3.7692, Lag order = 5, p-value = 0.02199
+    ## Dickey-Fuller = -3.8137, Lag order = 5, p-value = 0.01976
     ## alternative hypothesis: stationary
 
 ``` r
@@ -733,9 +736,9 @@ colMeans(daily_nominal, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       2.92       2.32      55.87     -20.73     -13.35      32.81     -50.29 
+    ##       2.92       2.36      54.16     -28.29     -15.62      25.21     -40.61 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##     -17.01     -21.92      17.11      80.22      82.43
+    ##     -19.14     -31.44      16.48      80.12      82.08
 
 ``` r
 # Compute the average annualized real returns
@@ -743,9 +746,9 @@ colMeans(daily_real, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##      -0.49      51.80     -24.77     -18.62      29.76     -48.70     -18.13 
+    ##      -0.46      50.08     -32.05     -20.80      22.43     -39.71     -20.26 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##     -27.04      13.66      80.22      82.43
+    ##     -36.32      13.04      80.12      82.08
 
 ``` r
 # Compute the average annualized excess returns
@@ -753,9 +756,9 @@ colMeans(daily_excess, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##      61.34     -27.10     -21.87      25.23     -38.15     -16.03     -19.27 
+    ##      57.96     -34.42     -24.03      17.91     -29.67     -18.28     -29.18 
     ##        SPY   Hashrate Difficulty 
-    ##      14.23      80.22      82.43
+    ##      13.57      80.12      82.08
 
 ``` r
 # Compute the standard deviation of the annual nominal returns
@@ -763,9 +766,9 @@ apply(daily_nominal, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       3.29       0.94    1355.02    3021.34    3566.73    2634.64    2577.70 
+    ##       3.27       0.97    1353.32    3009.60    3553.03    2625.98    2590.74 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##    2644.67    2029.37     413.02    4388.08     696.80
+    ##    2634.41    2044.73     410.90    4389.18     692.03
 
 ``` r
 # Compute the standard deviation of the annual real returns
@@ -773,9 +776,9 @@ apply(daily_real, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##       3.28    1326.55    2937.11    3485.75    2551.24    2440.19    2569.30 
+    ##       3.27    1324.64    2925.65    3471.80    2543.17    2455.85    2559.22 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##    1966.28     412.84    4388.08     696.80
+    ##    1980.86     410.65    4389.18     692.03
 
 ``` r
 # Compute the standard deviation of the annual excess returns
@@ -783,9 +786,9 @@ apply(daily_excess, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##    1441.14    2943.50    3492.87    2551.70    2422.44    2574.99    1967.43 
+    ##    1439.11    2931.87    3478.70    2543.55    2439.13    2564.71    1982.09 
     ##        SPY   Hashrate Difficulty 
-    ##     413.76    4388.08     696.80
+    ##     411.54    4389.18     692.03
 
 Now at the monthly frequency:
 
@@ -795,9 +798,9 @@ colMeans(monthly_nominal, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       2.91       2.34      56.83     -16.05      -6.83      20.32     -18.98 
+    ##       2.89       2.38      55.26     -17.30     -10.38      17.11     -27.25 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##      -2.43     -12.16      11.93      82.15      82.33
+    ##      -6.25     -16.23      11.81      80.75      81.25
 
 ``` r
 # Compute the average annualized real returns
@@ -805,9 +808,9 @@ colMeans(monthly_real, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##      -0.44      52.85     -19.14     -10.67      17.93     -19.40      -3.83 
+    ##      -0.38      51.38     -20.23     -14.05      14.81     -27.41      -7.45 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##     -17.05       8.82      82.15      82.33
+    ##     -20.63       8.74      80.75      81.25
 
 ``` r
 # Compute the average annualized excess returns
@@ -815,9 +818,9 @@ colMeans(monthly_excess, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##      53.29     -18.70      -9.78      18.80     -17.11      -2.71     -15.32 
+    ##      51.77     -19.85     -13.24      15.61     -25.34      -6.44     -19.15 
     ##        SPY   Hashrate Difficulty 
-    ##       9.26      82.15      82.33
+    ##       9.12      80.75      81.25
 
 ``` r
 # Compute the standard deviation of the annual nominal returns
@@ -825,9 +828,9 @@ apply(monthly_nominal, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       3.58       0.95     247.71     445.75     440.34     405.62     343.59 
+    ##       3.56       0.99     246.74     443.97     436.54     402.26     340.08 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##     408.37     361.27      53.74     106.17     105.01
+    ##     405.76     354.46      53.75     105.97     104.50
 
 ``` r
 # Compute the standard deviation of the annual real returns
@@ -835,9 +838,9 @@ apply(monthly_real, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##       3.52     241.76     432.22     424.48     391.72     326.37     393.75 
+    ##       3.52     240.82     430.53     420.81     388.48     323.23     391.28 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##     352.87      52.89     106.17     105.01
+    ##     346.20      52.93     105.97     104.50
 
 ``` r
 # Compute the standard deviation of the annual excess returns
@@ -845,14 +848,16 @@ apply(monthly_excess, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##     241.71     432.55     424.65     391.50     325.10     393.42     353.16 
+    ##     240.77     430.83     420.99     388.29     322.08     390.96     346.46 
     ##        SPY   Hashrate Difficulty 
-    ##      52.94     106.17     105.01
+    ##      52.95     105.97     104.50
 
 However, an important note to make about the results above is that only
 BTC, MARA, and SPY have data going back to 2014. So the other mining
 stocks each have shorter time frames. Thus, we should be cautious to
 draw any comparative conclusions from the stats above.
+
+### Subset to Final Datasets
 
 To create a more comparable basis for analysis, let’s create a subset of
 the monthly series that only includes observations where all assets have
@@ -874,9 +879,9 @@ colMeans(monthly_nominal_final, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       5.17       3.21      20.20      -7.57      16.94     -37.14     -24.58 
+    ##       4.98       3.28      17.06     -12.26       6.15     -43.01     -34.71 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##     -28.57     -12.16       8.15      67.23      65.15
+    ##     -35.34     -16.23       7.96      63.36      62.54
 
 ``` r
 # Compute the average annualized real returns
@@ -884,9 +889,9 @@ colMeans(monthly_real_final, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##      -1.74      16.40      -8.44      12.53     -36.78     -23.67     -28.61 
+    ##      -1.48      13.58     -12.76       2.22     -42.55     -33.54     -35.05 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##     -17.05       3.25      67.23      65.15
+    ##     -20.63       3.29      63.36      62.54
 
 ``` r
 # Compute the average annualized excess returns
@@ -894,9 +899,9 @@ colMeans(monthly_excess_final, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##      18.14      -6.70      14.27     -35.05     -21.93     -26.87     -15.32 
+    ##      15.06     -11.28       3.71     -41.07     -32.06     -33.57     -19.15 
     ##        SPY   Hashrate Difficulty 
-    ##       4.99      67.23      65.15
+    ##       4.77      63.36      62.54
 
 ``` r
 # Compute the standard deviation of the annual nominal returns
@@ -904,9 +909,9 @@ apply(monthly_nominal_final, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        INF         RF        BTC       MARA       CLSK       RIOT       CIFR 
-    ##       3.74       1.04     218.83     497.36     417.00     409.07     389.63 
+    ##       3.73       1.06     216.18     488.88     408.06     397.85     382.84 
     ##        HUT       BTDR        SPY   Hashrate Difficulty 
-    ##     429.34     361.27      64.09      60.66      55.61
+    ##     422.07     354.46      63.55      62.04      55.61
 
 ``` r
 # Compute the standard deviation of the annual real returns
@@ -914,9 +919,9 @@ apply(monthly_real_final, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##         RF        BTC       MARA       CLSK       RIOT       CIFR        HUT 
-    ##       3.97     204.66     475.90     393.39     389.38     370.15     407.02 
+    ##       4.01     202.55     468.09     385.12     378.77     363.95     400.45 
     ##       BTDR        SPY   Hashrate Difficulty 
-    ##     352.87      61.58      60.66      55.61
+    ##     346.20      61.21      62.04      55.61
 
 ``` r
 # Compute the standard deviation of the annual excess returns
@@ -924,9 +929,9 @@ apply(monthly_excess_final, 2, sd, na.rm=TRUE) |> round(2)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##     203.46     475.11     392.87     388.38     368.70     406.26     353.16 
+    ##     201.40     467.30     384.69     377.85     362.63     399.71     346.46 
     ##        SPY   Hashrate Difficulty 
-    ##      60.87      60.66      55.61
+    ##      60.45      62.04      55.61
 
 Since we have the excess returns, we can quite easily calculate Sharpe
 ratios for each asset to compare risk-adjusted returns. The Sharpe ratio
@@ -941,9 +946,9 @@ sharpe |> round(4)
 ```
 
     ##        BTC       MARA       CLSK       RIOT       CIFR        HUT       BTDR 
-    ##     0.0892    -0.0141     0.0363    -0.0902    -0.0595    -0.0661    -0.0434 
+    ##     0.0748    -0.0241     0.0096    -0.1087    -0.0884    -0.0840    -0.0553 
     ##        SPY   Hashrate Difficulty 
-    ##     0.0819     1.1084     1.1716
+    ##     0.0789     1.0213     1.1245
 
 ### Multivariate Statistics
 
@@ -967,23 +972,23 @@ cor(daily_nominal, use="pairwise.complete") |> round(2)
 ```
 
     ##              INF    RF   BTC  MARA  CLSK  RIOT  CIFR   HUT  BTDR   SPY Hashrate
-    ## INF         1.00  0.01 -0.01  0.02  0.02 -0.02 -0.06 -0.02  0.02  0.02     0.00
-    ## RF          0.01  1.00 -0.02 -0.03  0.00 -0.03  0.01 -0.03 -0.02 -0.01     0.00
-    ## BTC        -0.01 -0.02  1.00  0.33  0.13  0.44  0.27  0.49  0.08  0.23     0.03
-    ## MARA        0.02 -0.03  0.33  1.00  0.17  0.63  0.40  0.62  0.20  0.28    -0.01
-    ## CLSK        0.02  0.00  0.13  0.17  1.00  0.22  0.42  0.22  0.21  0.16     0.04
-    ## RIOT       -0.02 -0.03  0.44  0.63  0.22  1.00  0.41  0.60  0.19  0.33     0.01
-    ## CIFR       -0.06  0.01  0.27  0.40  0.42  0.41  1.00  0.41  0.20  0.26     0.01
-    ## HUT        -0.02 -0.03  0.49  0.62  0.22  0.60  0.41  1.00  0.21  0.31     0.01
-    ## BTDR        0.02 -0.02  0.08  0.20  0.21  0.19  0.20  0.21  1.00  0.06    -0.02
+    ## INF         1.00  0.01 -0.01  0.02  0.02 -0.02 -0.05 -0.02  0.03  0.02     0.00
+    ## RF          0.01  1.00 -0.03 -0.03  0.00 -0.04  0.01 -0.03 -0.02 -0.01     0.00
+    ## BTC        -0.01 -0.03  1.00  0.33  0.13  0.44  0.27  0.49  0.09  0.23     0.03
+    ## MARA        0.02 -0.03  0.33  1.00  0.18  0.63  0.41  0.62  0.23  0.28    -0.01
+    ## CLSK        0.02  0.00  0.13  0.18  1.00  0.23  0.44  0.23  0.24  0.16     0.04
+    ## RIOT       -0.02 -0.04  0.44  0.63  0.23  1.00  0.42  0.60  0.22  0.33     0.02
+    ## CIFR       -0.05  0.01  0.27  0.41  0.44  0.42  1.00  0.42  0.22  0.26     0.02
+    ## HUT        -0.02 -0.03  0.49  0.62  0.23  0.60  0.42  1.00  0.23  0.31     0.01
+    ## BTDR        0.03 -0.02  0.09  0.23  0.24  0.22  0.22  0.23  1.00  0.06     0.00
     ## SPY         0.02 -0.01  0.23  0.28  0.16  0.33  0.26  0.31  0.06  1.00     0.02
-    ## Hashrate    0.00  0.00  0.03 -0.01  0.04  0.01  0.01  0.01 -0.02  0.02     1.00
-    ## Difficulty -0.02  0.00  0.02 -0.04 -0.04 -0.05 -0.03 -0.07 -0.05 -0.05    -0.01
+    ## Hashrate    0.00  0.00  0.03 -0.01  0.04  0.02  0.02  0.01  0.00  0.02     1.00
+    ## Difficulty -0.02  0.00  0.02 -0.05 -0.04 -0.05 -0.03 -0.07 -0.05 -0.05    -0.01
     ##            Difficulty
     ## INF             -0.02
     ## RF               0.00
     ## BTC              0.02
-    ## MARA            -0.04
+    ## MARA            -0.05
     ## CLSK            -0.04
     ## RIOT            -0.05
     ## CIFR            -0.03
@@ -1009,30 +1014,30 @@ cor(monthly_nominal, use="pairwise.complete") |> round(2)
 ```
 
     ##              INF    RF   BTC  MARA  CLSK  RIOT  CIFR   HUT  BTDR   SPY Hashrate
-    ## INF         1.00  0.05 -0.05  0.05  0.05 -0.11 -0.35 -0.15  0.05  0.04    -0.14
-    ## RF          0.05  1.00 -0.07 -0.13  0.01 -0.16  0.15 -0.14 -0.10 -0.04     0.06
-    ## BTC        -0.05 -0.07  1.00  0.50  0.32  0.61  0.49  0.72 -0.07  0.36     0.14
-    ## MARA        0.05 -0.13  0.50  1.00  0.50  0.73  0.54  0.72  0.21  0.49     0.00
-    ## CLSK        0.05  0.01  0.32  0.50  1.00  0.44  0.48  0.39  0.07  0.46     0.05
-    ## RIOT       -0.11 -0.16  0.61  0.73  0.44  1.00  0.55  0.68  0.01  0.50    -0.02
-    ## CIFR       -0.35  0.15  0.49  0.54  0.48  0.55  1.00  0.62  0.05  0.36     0.08
-    ## HUT        -0.15 -0.14  0.72  0.72  0.39  0.68  0.62  1.00  0.15  0.40     0.17
-    ## BTDR        0.05 -0.10 -0.07  0.21  0.07  0.01  0.05  0.15  1.00  0.23    -0.10
-    ## SPY         0.04 -0.04  0.36  0.49  0.46  0.50  0.36  0.40  0.23  1.00     0.04
-    ## Hashrate   -0.14  0.06  0.14  0.00  0.05 -0.02  0.08  0.17 -0.10  0.04     1.00
-    ## Difficulty -0.11  0.07  0.09 -0.01 -0.03 -0.06 -0.02  0.10  0.02 -0.02     0.85
+    ## INF         1.00  0.04 -0.05  0.04  0.05 -0.11 -0.33 -0.15  0.04  0.03    -0.13
+    ## RF          0.04  1.00 -0.08 -0.13  0.00 -0.17  0.11 -0.15 -0.11 -0.05     0.03
+    ## BTC        -0.05 -0.08  1.00  0.50  0.33  0.61  0.50  0.73 -0.03  0.37     0.14
+    ## MARA        0.04 -0.13  0.50  1.00  0.50  0.73  0.55  0.73  0.23  0.50     0.00
+    ## CLSK        0.05  0.00  0.33  0.50  1.00  0.44  0.49  0.39  0.09  0.46     0.06
+    ## RIOT       -0.11 -0.17  0.61  0.73  0.44  1.00  0.55  0.68  0.02  0.50    -0.02
+    ## CIFR       -0.33  0.11  0.50  0.55  0.49  0.55  1.00  0.63  0.07  0.38     0.08
+    ## HUT        -0.15 -0.15  0.73  0.73  0.39  0.68  0.63  1.00  0.17  0.41     0.16
+    ## BTDR        0.04 -0.11 -0.03  0.23  0.09  0.02  0.07  0.17  1.00  0.26    -0.11
+    ## SPY         0.03 -0.05  0.37  0.50  0.46  0.50  0.38  0.41  0.26  1.00     0.04
+    ## Hashrate   -0.13  0.03  0.14  0.00  0.06 -0.02  0.08  0.16 -0.11  0.04     1.00
+    ## Difficulty -0.10  0.04  0.09 -0.01 -0.03 -0.06 -0.03  0.10  0.00 -0.03     0.86
     ##            Difficulty
-    ## INF             -0.11
-    ## RF               0.07
+    ## INF             -0.10
+    ## RF               0.04
     ## BTC              0.09
     ## MARA            -0.01
     ## CLSK            -0.03
     ## RIOT            -0.06
-    ## CIFR            -0.02
+    ## CIFR            -0.03
     ## HUT              0.10
-    ## BTDR             0.02
-    ## SPY             -0.02
-    ## Hashrate         0.85
+    ## BTDR             0.00
+    ## SPY             -0.03
+    ## Hashrate         0.86
     ## Difficulty       1.00
 
 ``` r
@@ -1051,30 +1056,30 @@ cor(monthly_nominal_final) |> round(2)
 ```
 
     ##              INF    RF   BTC  MARA  CLSK  RIOT  CIFR   HUT  BTDR   SPY Hashrate
-    ## INF         1.00 -0.49 -0.29 -0.22 -0.09 -0.25 -0.36 -0.25  0.05 -0.15     0.02
-    ## RF         -0.49  1.00  0.21  0.04  0.19  0.11  0.23 -0.05 -0.10  0.13    -0.25
-    ## BTC        -0.29  0.21  1.00  0.77  0.74  0.70  0.59  0.77 -0.07  0.56     0.39
-    ## MARA       -0.22  0.04  0.77  1.00  0.75  0.86  0.62  0.87  0.21  0.65     0.31
-    ## CLSK       -0.09  0.19  0.74  0.75  1.00  0.72  0.55  0.68  0.07  0.52     0.23
-    ## RIOT       -0.25  0.11  0.70  0.86  0.72  1.00  0.68  0.73  0.01  0.55     0.22
-    ## CIFR       -0.36  0.23  0.59  0.62  0.55  0.68  1.00  0.70  0.05  0.38     0.17
-    ## HUT        -0.25 -0.05  0.77  0.87  0.68  0.73  0.70  1.00  0.15  0.52     0.44
-    ## BTDR        0.05 -0.10 -0.07  0.21  0.07  0.01  0.05  0.15  1.00  0.23    -0.10
-    ## SPY        -0.15  0.13  0.56  0.65  0.52  0.55  0.38  0.52  0.23  1.00     0.15
-    ## Hashrate    0.02 -0.25  0.39  0.31  0.23  0.22  0.17  0.44 -0.10  0.15     1.00
-    ## Difficulty  0.11 -0.19  0.23  0.10  0.09  0.07 -0.01  0.13  0.02  0.06     0.72
+    ## INF         1.00 -0.51 -0.29 -0.23 -0.08 -0.24 -0.34 -0.24  0.04 -0.16     0.09
+    ## RF         -0.51  1.00  0.18  0.02  0.15  0.09  0.18 -0.07 -0.11  0.12    -0.30
+    ## BTC        -0.29  0.18  1.00  0.78  0.74  0.69  0.60  0.77 -0.03  0.58     0.34
+    ## MARA       -0.23  0.02  0.78  1.00  0.75  0.86  0.63  0.88  0.23  0.66     0.27
+    ## CLSK       -0.08  0.15  0.74  0.75  1.00  0.72  0.56  0.69  0.09  0.53     0.23
+    ## RIOT       -0.24  0.09  0.69  0.86  0.72  1.00  0.68  0.73  0.02  0.55     0.22
+    ## CIFR       -0.34  0.18  0.60  0.63  0.56  0.68  1.00  0.71  0.07  0.40     0.16
+    ## HUT        -0.24 -0.07  0.77  0.88  0.69  0.73  0.71  1.00  0.17  0.53     0.39
+    ## BTDR        0.04 -0.11 -0.03  0.23  0.09  0.02  0.07  0.17  1.00  0.26    -0.11
+    ## SPY        -0.16  0.12  0.58  0.66  0.53  0.55  0.40  0.53  0.26  1.00     0.10
+    ## Hashrate    0.09 -0.30  0.34  0.27  0.23  0.22  0.16  0.39 -0.11  0.10     1.00
+    ## Difficulty  0.16 -0.24  0.20  0.08  0.10  0.07 -0.01  0.11  0.00  0.03     0.74
     ##            Difficulty
-    ## INF              0.11
-    ## RF              -0.19
-    ## BTC              0.23
-    ## MARA             0.10
-    ## CLSK             0.09
+    ## INF              0.16
+    ## RF              -0.24
+    ## BTC              0.20
+    ## MARA             0.08
+    ## CLSK             0.10
     ## RIOT             0.07
     ## CIFR            -0.01
-    ## HUT              0.13
-    ## BTDR             0.02
-    ## SPY              0.06
-    ## Hashrate         0.72
+    ## HUT              0.11
+    ## BTDR             0.00
+    ## SPY              0.03
+    ## Hashrate         0.74
     ## Difficulty       1.00
 
 ``` r
@@ -1107,18 +1112,18 @@ summary(CAPM_BTC)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -376.65 -102.90  -10.57  117.58  347.04 
+    ## -368.37  -99.62  -11.06  103.55  351.51 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   4.6403    32.8719   0.141 0.888686    
-    ## SPY           1.9092     0.5168   3.694 0.000878 ***
+    ## (Intercept)   1.4677    31.0300   0.047 0.962569    
+    ## SPY           1.9587     0.4917   3.984 0.000367 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 184.4 on 30 degrees of freedom
-    ## Multiple R-squared:  0.3127, Adjusted R-squared:  0.2898 
-    ## F-statistic: 13.65 on 1 and 30 DF,  p-value: 0.0008778
+    ## Residual standard error: 179.5 on 32 degrees of freedom
+    ## Multiple R-squared:  0.3315, Adjusted R-squared:  0.3106 
+    ## F-statistic: 15.87 on 1 and 32 DF,  p-value: 0.0003667
 
 ``` r
 # MARA CAPM Regression
@@ -1132,18 +1137,18 @@ summary(CAPM_MARA)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1155.09  -189.34    53.86   202.40   586.89 
+    ## -1153.70  -166.75    17.21   197.19   588.74 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  -48.777     68.357  -0.714    0.481    
-    ## SPY            5.057      1.075   4.705 5.35e-05 ***
+    ## (Intercept)  -52.836     64.279  -0.822    0.417    
+    ## SPY            5.098      1.019   5.005 1.96e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 383.5 on 30 degrees of freedom
-    ## Multiple R-squared:  0.4246, Adjusted R-squared:  0.4055 
-    ## F-statistic: 22.14 on 1 and 30 DF,  p-value: 5.347e-05
+    ## Residual standard error: 371.8 on 32 degrees of freedom
+    ## Multiple R-squared:  0.4391, Adjusted R-squared:  0.4216 
+    ## F-statistic: 25.05 on 1 and 32 DF,  p-value: 1.958e-05
 
 ``` r
 # CLSK CAPM Regression
@@ -1157,18 +1162,18 @@ summary(CAPM_CLSK)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -923.90 -166.10  -27.07  208.01  680.49 
+    ## -912.55 -170.30  -56.96  192.39  691.18 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept)  -10.871     64.326  -0.169  0.86694   
-    ## SPY            3.413      1.011   3.375  0.00206 **
+    ## (Intercept) -20.8041    60.8653  -0.342  0.73473   
+    ## SPY           3.3867     0.9644   3.512  0.00135 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 360.9 on 30 degrees of freedom
-    ## Multiple R-squared:  0.2752, Adjusted R-squared:  0.251 
-    ## F-statistic: 11.39 on 1 and 30 DF,  p-value: 0.002055
+    ## Residual standard error: 352.1 on 32 degrees of freedom
+    ## Multiple R-squared:  0.2782, Adjusted R-squared:  0.2556 
+    ## F-statistic: 12.33 on 1 and 32 DF,  p-value: 0.001349
 
 ``` r
 # RIOT CAPM Regression
@@ -1182,18 +1187,18 @@ summary(CAPM_RIOT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -744.03 -224.75   43.87  216.37  544.78 
+    ## -735.25 -216.92   24.79  218.74  555.03 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -65.9919    61.6661  -1.070 0.293088    
-    ## SPY           3.5409     0.9694   3.652 0.000983 ***
+    ## (Intercept) -70.5809    58.1830  -1.213  0.23398    
+    ## SPY           3.4635     0.9219   3.757  0.00069 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 346 on 30 degrees of freedom
-    ## Multiple R-squared:  0.3078, Adjusted R-squared:  0.2847 
-    ## F-statistic: 13.34 on 1 and 30 DF,  p-value: 0.0009826
+    ## Residual standard error: 336.6 on 32 degrees of freedom
+    ## Multiple R-squared:  0.3061, Adjusted R-squared:  0.2844 
+    ## F-statistic: 14.11 on 1 and 32 DF,  p-value: 0.0006898
 
 ``` r
 # CIFR CAPM Regression
@@ -1207,18 +1212,18 @@ summary(CAPM_CIFR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -721.98 -262.89   35.83  188.47  788.32 
+    ## -715.19 -226.90    7.32  158.91  793.93 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept)  -43.483     65.258  -0.666   0.5103  
-    ## SPY            2.319      1.026   2.261   0.0312 *
+    ## (Intercept) -53.6687    61.7363  -0.869   0.3911  
+    ## SPY           2.3817     0.9782   2.435   0.0207 *
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 366.1 on 30 degrees of freedom
-    ## Multiple R-squared:  0.1455, Adjusted R-squared:  0.1171 
-    ## F-statistic:  5.11 on 1 and 30 DF,  p-value: 0.0312
+    ## Residual standard error: 357.1 on 32 degrees of freedom
+    ## Multiple R-squared:  0.1563, Adjusted R-squared:  0.1299 
+    ## F-statistic: 5.928 on 1 and 32 DF,  p-value: 0.02066
 
 ``` r
 # HUT CAPM Regression
@@ -1232,18 +1237,18 @@ summary(CAPM_HUT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -927.51 -129.44    2.89  266.49  786.87 
+    ## -925.19 -149.21    3.42  264.32  788.65 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept)  -56.855     66.534  -0.855  0.39958   
-    ## SPY            3.471      1.046   3.318  0.00238 **
+    ## (Intercept) -63.4897    62.7139  -1.012  0.31896   
+    ## SPY           3.5373     0.9937   3.560  0.00118 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 373.3 on 30 degrees of freedom
-    ## Multiple R-squared:  0.2685, Adjusted R-squared:  0.2441 
-    ## F-statistic: 11.01 on 1 and 30 DF,  p-value: 0.002382
+    ## Residual standard error: 362.8 on 32 degrees of freedom
+    ## Multiple R-squared:  0.2837, Adjusted R-squared:  0.2613 
+    ## F-statistic: 12.67 on 1 and 32 DF,  p-value: 0.001184
 
 ``` r
 # BTDR CAPM Regression
@@ -1257,16 +1262,16 @@ summary(CAPM_BTDR)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1079.00  -100.33     9.06   107.75   911.53 
+    ## -1071.08  -111.54    11.57   111.11   907.31 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)  -22.808     63.677  -0.358    0.723
-    ## SPY            1.306      1.001   1.305    0.202
+    ## (Intercept) -27.5784    60.1629  -0.458    0.650
+    ## SPY           1.4254     0.9533   1.495    0.145
     ## 
-    ## Residual standard error: 357.2 on 30 degrees of freedom
-    ## Multiple R-squared:  0.05369,    Adjusted R-squared:  0.02215 
-    ## F-statistic: 1.702 on 1 and 30 DF,  p-value: 0.2019
+    ## Residual standard error: 348 on 32 degrees of freedom
+    ## Multiple R-squared:  0.0653, Adjusted R-squared:  0.03609 
+    ## F-statistic: 2.236 on 1 and 32 DF,  p-value: 0.1447
 
 Now let’s extract the residuals from those regressions and look at those
 correlations.
@@ -1287,13 +1292,13 @@ cor(CAPM_resids) |> round(2)
 ```
 
     ##        BTC MARA  CLSK  RIOT  CIFR  HUT  BTDR
-    ## BTC   1.00 0.64  0.63  0.56  0.50 0.67 -0.24
-    ## MARA  0.64 1.00  0.64  0.79  0.54 0.83  0.08
+    ## BTC   1.00 0.65  0.63  0.55  0.50 0.67 -0.23
+    ## MARA  0.65 1.00  0.64  0.79  0.54 0.83  0.08
     ## CLSK  0.63 0.64  1.00  0.61  0.45 0.57 -0.06
-    ## RIOT  0.56 0.79  0.61  1.00  0.61 0.62 -0.15
-    ## CIFR  0.50 0.54  0.45  0.61  1.00 0.63 -0.04
-    ## HUT   0.67 0.83  0.57  0.62  0.63 1.00  0.04
-    ## BTDR -0.24 0.08 -0.06 -0.15 -0.04 0.04  1.00
+    ## RIOT  0.55 0.79  0.61  1.00  0.60 0.62 -0.15
+    ## CIFR  0.50 0.54  0.45  0.60  1.00 0.64 -0.03
+    ## HUT   0.67 0.83  0.57  0.62  0.64 1.00  0.04
+    ## BTDR -0.23 0.08 -0.06 -0.15 -0.03 0.04  1.00
 
 ``` r
 # Create a correlation plot for the residuals
@@ -1319,20 +1324,20 @@ summary(BFM_MARA)
     ## lm(formula = MARA ~ SPY + BTC, data = monthly_nominal_final)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -698.01 -194.05   20.83  183.88  592.13 
+    ##    Min     1Q Median     3Q    Max 
+    ## -697.7 -173.0   21.1  160.6  594.6 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -54.9939    53.1902  -1.034   0.3097    
-    ## SPY           2.4987     1.0083   2.478   0.0193 *  
-    ## BTC           1.3398     0.2953   4.537 9.18e-05 ***
+    ## (Intercept) -54.7975    49.8995  -1.098   0.2806    
+    ## SPY           2.4800     0.9670   2.565   0.0154 *  
+    ## BTC           1.3365     0.2843   4.702 5.04e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 298.3 on 29 degrees of freedom
-    ## Multiple R-squared:  0.6635, Adjusted R-squared:  0.6403 
-    ## F-statistic: 28.59 on 2 and 29 DF,  p-value: 1.386e-07
+    ## Residual standard error: 288.6 on 31 degrees of freedom
+    ## Multiple R-squared:  0.6726, Adjusted R-squared:  0.6514 
+    ## F-statistic: 31.84 on 2 and 31 DF,  p-value: 3.05e-08
 
 ``` r
 BFM_CLSK = lm(CLSK~SPY+BTC, data=monthly_nominal_final)
@@ -1345,19 +1350,19 @@ summary(BFM_CLSK)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -483.58 -232.46  -22.81  243.12  474.87 
+    ## -473.67 -217.50  -18.15  215.50  485.63 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -16.5832    50.8728  -0.326  0.74678    
-    ## SPY           1.0624     0.9644   1.102  0.27968    
-    ## BTC           1.2311     0.2825   4.359  0.00015 ***
+    ## (Intercept) -22.6076    48.2032  -0.469    0.642    
+    ## SPY           0.9800     0.9341   1.049    0.302    
+    ## BTC           1.2288     0.2746   4.475 9.62e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 285.3 on 29 degrees of freedom
-    ## Multiple R-squared:  0.5621, Adjusted R-squared:  0.5319 
-    ## F-statistic: 18.61 on 2 and 29 DF,  p-value: 6.318e-06
+    ## Residual standard error: 278.8 on 31 degrees of freedom
+    ## Multiple R-squared:  0.5614, Adjusted R-squared:  0.5331 
+    ## F-statistic: 19.84 on 2 and 31 DF,  p-value: 2.828e-06
 
 ``` r
 BFM_RIOT = lm(RIOT~SPY+BTC, data=monthly_nominal_final)
@@ -1369,20 +1374,20 @@ summary(BFM_RIOT)
     ## lm(formula = RIOT ~ SPY + BTC, data = monthly_nominal_final)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -408.76 -197.76    4.07  193.23  602.67 
+    ##    Min     1Q Median     3Q    Max 
+    ## -418.8 -193.7    3.3  182.7  607.1 
     ## 
     ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -70.8521    52.0511  -1.361   0.1839   
-    ## SPY           1.5412     0.9867   1.562   0.1291   
-    ## BTC           1.0474     0.2890   3.624   0.0011 **
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -72.0977    49.3258  -1.462 0.153898    
+    ## SPY           1.4393     0.9559   1.506 0.142270    
+    ## BTC           1.0335     0.2810   3.678 0.000886 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 291.9 on 29 degrees of freedom
-    ## Multiple R-squared:  0.5236, Adjusted R-squared:  0.4907 
-    ## F-statistic: 15.94 on 2 and 29 DF,  p-value: 2.142e-05
+    ## Residual standard error: 285.3 on 31 degrees of freedom
+    ## Multiple R-squared:  0.5169, Adjusted R-squared:  0.4857 
+    ## F-statistic: 16.58 on 2 and 31 DF,  p-value: 1.267e-05
 
 ``` r
 BFM_CIFR = lm(CIFR~SPY+BTC, data=monthly_nominal_final)
@@ -1395,19 +1400,19 @@ summary(BFM_CIFR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -714.28 -287.94   -7.47  205.13  534.60 
+    ## -711.10 -253.20   -5.16  192.69  537.73 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -48.0462    57.6754  -0.833   0.4116   
-    ## SPY           0.4415     1.0933   0.404   0.6893   
-    ## BTC           0.9835     0.3202   3.071   0.0046 **
+    ## (Intercept) -55.1287    54.3228  -1.015  0.31804   
+    ## SPY           0.4333     1.0527   0.412  0.68346   
+    ## BTC           0.9948     0.3095   3.215  0.00305 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 323.5 on 29 degrees of freedom
-    ## Multiple R-squared:  0.3552, Adjusted R-squared:  0.3108 
-    ## F-statistic: 7.989 on 2 and 29 DF,  p-value: 0.001723
+    ## Residual standard error: 314.2 on 31 degrees of freedom
+    ## Multiple R-squared:  0.3672, Adjusted R-squared:  0.3264 
+    ## F-statistic: 8.995 on 2 and 31 DF,  p-value: 0.0008307
 
 ``` r
 BFM_HUT = lm(HUT~SPY+BTC, data=monthly_nominal_final)
@@ -1420,19 +1425,19 @@ summary(BFM_HUT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -661.45 -182.70  -17.45  200.92  437.83 
+    ## -659.02 -178.38  -34.44  186.78  439.94 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -63.1700    50.1096  -1.261    0.217    
-    ## SPY           0.8729     0.9499   0.919    0.366    
-    ## BTC           1.3609     0.2782   4.891 3.43e-05 ***
+    ## (Intercept) -65.4914    47.0233  -1.393    0.174    
+    ## SPY           0.8659     0.9113   0.950    0.349    
+    ## BTC           1.3639     0.2679   5.091 1.65e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 281 on 29 degrees of freedom
-    ## Multiple R-squared:  0.5992, Adjusted R-squared:  0.5715 
-    ## F-statistic: 21.68 on 2 and 29 DF,  p-value: 1.749e-06
+    ## Residual standard error: 272 on 31 degrees of freedom
+    ## Multiple R-squared:  0.6099, Adjusted R-squared:  0.5847 
+    ## F-statistic: 24.23 on 2 and 31 DF,  p-value: 4.608e-07
 
 ``` r
 BFM_BTDR = lm(BTDR~SPY+BTC, data=monthly_nominal_final)
@@ -1444,20 +1449,20 @@ summary(BFM_BTDR)
     ## lm(formula = BTDR ~ SPY + BTC, data = monthly_nominal_final)
     ## 
     ## Residuals:
-    ##    Min     1Q Median     3Q    Max 
-    ## -915.4 -166.9   36.4  103.5  908.2 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -914.41 -173.81   40.37  105.84  906.04 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept) -20.6207    62.8387  -0.328   0.7452  
-    ## SPY           2.2062     1.1912   1.852   0.0742 .
-    ## BTC          -0.4715     0.3489  -1.351   0.1870  
+    ## (Intercept) -26.9242    59.4906  -0.453   0.6540  
+    ## SPY           2.2983     1.1529   1.994   0.0551 .
+    ## BTC          -0.4457     0.3389  -1.315   0.1981  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 352.4 on 29 degrees of freedom
-    ## Multiple R-squared:  0.1098, Adjusted R-squared:  0.04836 
-    ## F-statistic: 1.788 on 2 and 29 DF,  p-value: 0.1853
+    ## Residual standard error: 344.1 on 31 degrees of freedom
+    ## Multiple R-squared:  0.1147, Adjusted R-squared:  0.05758 
+    ## F-statistic: 2.008 on 2 and 31 DF,  p-value: 0.1513
 
 Now let’s extract the residuals from those regressions and look at those
 correlations.
@@ -1477,12 +1482,12 @@ cor(BFM_resids) |> round(2)
 ```
 
     ##      MARA CLSK  RIOT CIFR  HUT  BTDR
-    ## MARA 1.00 0.39  0.68 0.33 0.70  0.32
-    ## CLSK 0.39 1.00  0.40 0.20 0.25  0.13
-    ## RIOT 0.68 0.40  1.00 0.46 0.40 -0.02
-    ## CIFR 0.33 0.20  0.46 1.00 0.47  0.10
+    ## MARA 1.00 0.39  0.68 0.33 0.70  0.31
+    ## CLSK 0.39 1.00  0.41 0.21 0.25  0.12
+    ## RIOT 0.68 0.41  1.00 0.45 0.40 -0.03
+    ## CIFR 0.33 0.21  0.45 1.00 0.47  0.10
     ## HUT  0.70 0.25  0.40 0.47 1.00  0.28
-    ## BTDR 0.32 0.13 -0.02 0.10 0.28  1.00
+    ## BTDR 0.31 0.12 -0.03 0.10 0.28  1.00
 
 ``` r
 # Create a correlation plot for the residuals
@@ -1509,20 +1514,20 @@ summary(HFM_MARA)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -681.98 -198.10    4.57  164.98  639.95 
+    ## -683.94 -182.64   13.38  155.25  638.40 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -76.6029    83.7901  -0.914 0.368405    
-    ## SPY           2.5284     1.0279   2.460 0.020333 *  
-    ## BTC           1.2992     0.3232   4.020 0.000399 ***
-    ## Hashrate      0.3300     0.9782   0.337 0.738348    
+    ## (Intercept) -74.8189    74.6959  -1.002 0.324525    
+    ## SPY           2.5238     0.9882   2.554 0.015968 *  
+    ## BTC           1.2976     0.3075   4.220 0.000208 ***
+    ## Hashrate      0.3210     0.8807   0.364 0.718075    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 303 on 28 degrees of freedom
-    ## Multiple R-squared:  0.6648, Adjusted R-squared:  0.6289 
-    ## F-statistic: 18.51 on 3 and 28 DF,  p-value: 8.112e-07
+    ## Residual standard error: 292.8 on 30 degrees of freedom
+    ## Multiple R-squared:  0.674,  Adjusted R-squared:  0.6414 
+    ## F-statistic: 20.68 on 3 and 30 DF,  p-value: 1.862e-07
 
 ``` r
 HFM_CLSK = lm(CLSK~SPY+BTC+Hashrate, data=monthly_nominal_final)
@@ -1535,20 +1540,20 @@ summary(HFM_CLSK)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -463.02 -244.57  -14.28  247.47  473.36 
+    ## -468.31 -225.76  -13.97  216.99  485.80 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   8.5584    80.0614   0.107 0.915632    
-    ## SPY           1.0277     0.9821   1.046 0.304313    
-    ## BTC           1.2784     0.3088   4.140 0.000289 ***
-    ## Hashrate     -0.3840     0.9346  -0.411 0.684337    
+    ## (Intercept) -16.9121    72.3024  -0.234 0.816646    
+    ## SPY           0.9675     0.9565   1.012 0.319862    
+    ## BTC           1.2398     0.2976   4.166 0.000242 ***
+    ## Hashrate     -0.0913     0.8524  -0.107 0.915416    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 289.5 on 28 degrees of freedom
-    ## Multiple R-squared:  0.5647, Adjusted R-squared:  0.518 
-    ## F-statistic: 12.11 on 3 and 28 DF,  p-value: 2.93e-05
+    ## Residual standard error: 283.4 on 30 degrees of freedom
+    ## Multiple R-squared:  0.5616, Adjusted R-squared:  0.5178 
+    ## F-statistic: 12.81 on 3 and 30 DF,  p-value: 1.459e-05
 
 ``` r
 HFM_RIOT = lm(RIOT~SPY+BTC+Hashrate, data=monthly_nominal_final)
@@ -1560,21 +1565,21 @@ summary(HFM_RIOT)
     ## lm(formula = RIOT ~ SPY + BTC + Hashrate, data = monthly_nominal_final)
     ## 
     ## Residuals:
-    ##    Min     1Q Median     3Q    Max 
-    ## -407.8 -190.6   30.3  183.5  597.5 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -418.84 -194.02    3.86  182.47  607.07 
     ## 
     ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -53.9730    82.0562  -0.658  0.51607   
-    ## SPY           1.5179     1.0066   1.508  0.14276   
-    ## BTC           1.0791     0.3165   3.409  0.00199 **
-    ## Hashrate     -0.2578     0.9579  -0.269  0.78983   
+    ##               Estimate Std. Error t value Pr(>|t|)   
+    ## (Intercept) -71.758537  74.000355  -0.970  0.33995   
+    ## SPY           1.438532   0.978949   1.469  0.15212   
+    ## BTC           1.034146   0.304609   3.395  0.00195 **
+    ## Hashrate     -0.005437   0.872451  -0.006  0.99507   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 296.7 on 28 degrees of freedom
-    ## Multiple R-squared:  0.5248, Adjusted R-squared:  0.4739 
-    ## F-statistic: 10.31 on 3 and 28 DF,  p-value: 9.672e-05
+    ## Residual standard error: 290 on 30 degrees of freedom
+    ## Multiple R-squared:  0.5169, Adjusted R-squared:  0.4686 
+    ## F-statistic:  10.7 on 3 and 30 DF,  p-value: 6.037e-05
 
 ``` r
 HFM_CIFR = lm(CIFR~SPY+BTC+Hashrate, data=monthly_nominal_final)
@@ -1587,20 +1592,20 @@ summary(HFM_CIFR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -708.15 -284.43   -3.59  202.72  542.27 
+    ## -705.11 -258.96   -1.71  188.37  544.57 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -18.5511    90.7476  -0.204  0.83950   
-    ## SPY           0.4008     1.1132   0.360  0.72153   
-    ## BTC           1.0389     0.3500   2.968  0.00608 **
-    ## Hashrate     -0.4504     1.0594  -0.425  0.67394   
+    ## (Intercept) -37.5053    81.3795  -0.461  0.64822   
+    ## SPY           0.3948     1.0766   0.367  0.71642   
+    ## BTC           1.0290     0.3350   3.072  0.00449 **
+    ## Hashrate     -0.2825     0.9594  -0.294  0.77044   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 328.1 on 28 degrees of freedom
-    ## Multiple R-squared:  0.3594, Adjusted R-squared:  0.2907 
-    ## F-statistic: 5.236 on 3 and 28 DF,  p-value: 0.005382
+    ## Residual standard error: 318.9 on 30 degrees of freedom
+    ## Multiple R-squared:  0.369,  Adjusted R-squared:  0.3059 
+    ## F-statistic: 5.849 on 3 and 30 DF,  p-value: 0.002859
 
 ``` r
 HFM_HUT = lm(HUT~SPY+BTC+Hashrate, data=monthly_nominal_final)
@@ -1613,20 +1618,20 @@ summary(HFM_HUT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -640.36 -154.41   -8.72  212.81  438.89 
+    ## -644.40 -146.47  -14.01  205.47  414.98 
     ## 
     ## Coefficients:
     ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -143.6787    76.5524  -1.877 0.070993 .  
-    ## SPY            0.9839     0.9391   1.048 0.303741    
-    ## BTC            1.2095     0.2953   4.096 0.000324 ***
-    ## Hashrate       1.2295     0.8937   1.376 0.179788    
+    ## (Intercept) -134.8211    68.4144  -1.971 0.058052 .  
+    ## SPY            1.0175     0.9051   1.124 0.269813    
+    ## BTC            1.2291     0.2816   4.364 0.000139 ***
+    ## Hashrate       1.1114     0.8066   1.378 0.178424    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 276.8 on 28 degrees of freedom
-    ## Multiple R-squared:  0.6246, Adjusted R-squared:  0.5843 
-    ## F-statistic: 15.53 on 3 and 28 DF,  p-value: 3.862e-06
+    ## Residual standard error: 268.1 on 30 degrees of freedom
+    ## Multiple R-squared:  0.6331, Adjusted R-squared:  0.5964 
+    ## F-statistic: 17.26 on 3 and 30 DF,  p-value: 1.066e-06
 
 ``` r
 HFM_BTDR = lm(BTDR~SPY+BTC+Hashrate, data=monthly_nominal_final)
@@ -1639,20 +1644,20 @@ summary(HFM_BTDR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -918.76 -170.74   50.47  112.17  906.97 
+    ## -917.54 -176.34   48.06  111.88  906.75 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept)  -0.1349    99.0610  -0.001   0.9989  
-    ## SPY           2.1780     1.2152   1.792   0.0839 .
-    ## BTC          -0.4330     0.3821  -1.133   0.2668  
-    ## Hashrate     -0.3129     1.1564  -0.271   0.7887  
+    ## (Intercept)  -3.7174    89.0639  -0.042   0.9670  
+    ## SPY           2.2476     1.1782   1.908   0.0661 .
+    ## BTC          -0.4006     0.3666  -1.093   0.2832  
+    ## Hashrate     -0.3720     1.0500  -0.354   0.7256  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 358.2 on 28 degrees of freedom
-    ## Multiple R-squared:  0.1121, Adjusted R-squared:  0.01694 
-    ## F-statistic: 1.178 on 3 and 28 DF,  p-value: 0.3358
+    ## Residual standard error: 349.1 on 30 degrees of freedom
+    ## Multiple R-squared:  0.1184, Adjusted R-squared:  0.03022 
+    ## F-statistic: 1.343 on 3 and 30 DF,  p-value: 0.2791
 
 Since that doesn’t seem to add much explanatory power to any of those
 models, let’s just skip those residuals and correlations.
@@ -1676,20 +1681,20 @@ summary(DFM_MARA)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -684.58 -181.48   49.94  203.50  552.02 
+    ## -684.20 -157.00   37.54  187.19  554.34 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -23.4732    84.3057  -0.278  0.78273    
-    ## SPY           2.4566     1.0255   2.396  0.02352 *  
-    ## BTC           1.3752     0.3080   4.465  0.00012 ***
-    ## Difficulty   -0.4895     1.0067  -0.486  0.63056    
+    ## (Intercept) -28.0000    77.3219  -0.362   0.7198    
+    ## SPY           2.4299     0.9857   2.465   0.0196 *  
+    ## BTC           1.3672     0.2957   4.624 6.72e-05 ***
+    ## Difficulty   -0.4305     0.9400  -0.458   0.6503    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 302.3 on 28 degrees of freedom
-    ## Multiple R-squared:  0.6663, Adjusted R-squared:  0.6305 
-    ## F-statistic: 18.63 on 3 and 28 DF,  p-value: 7.64e-07
+    ## Residual standard error: 292.4 on 30 degrees of freedom
+    ## Multiple R-squared:  0.6748, Adjusted R-squared:  0.6423 
+    ## F-statistic: 20.75 on 3 and 30 DF,  p-value: 1.793e-07
 
 ``` r
 DFM_CLSK = lm(CLSK~SPY+BTC+Difficulty, data=monthly_nominal_final)
@@ -1702,20 +1707,20 @@ summary(DFM_CLSK)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -466.87 -233.49  -30.21  232.62  480.26 
+    ## -463.04 -231.46  -14.83  209.95  489.88 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  16.7126    80.5578   0.207 0.837151    
-    ## SPY           1.0180     0.9799   1.039 0.307758    
-    ## BTC           1.2685     0.2943   4.310 0.000182 ***
-    ## Difficulty   -0.5171     0.9619  -0.538 0.595130    
+    ## (Intercept)  -4.1546    74.8218  -0.056 0.956087    
+    ## SPY           0.9455     0.9538   0.991 0.329488    
+    ## BTC           1.2499     0.2861   4.369 0.000137 ***
+    ## Difficulty   -0.2965     0.9096  -0.326 0.746754    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 288.9 on 28 degrees of freedom
-    ## Multiple R-squared:  0.5665, Adjusted R-squared:  0.5201 
-    ## F-statistic:  12.2 on 3 and 28 DF,  p-value: 2.765e-05
+    ## Residual standard error: 282.9 on 30 degrees of freedom
+    ## Multiple R-squared:  0.563,  Adjusted R-squared:  0.5193 
+    ## F-statistic: 12.88 on 3 and 30 DF,  p-value: 1.393e-05
 
 ``` r
 DFM_RIOT = lm(RIOT~SPY+BTC+Difficulty, data=monthly_nominal_final)
@@ -1728,20 +1733,20 @@ summary(DFM_RIOT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -413.82 -210.32   17.65  175.03  599.46 
+    ## -424.71 -203.76   12.85  164.70  592.70 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -32.3792    82.3065  -0.393  0.69701   
-    ## SPY           1.4899     1.0012   1.488  0.14789   
-    ## BTC           1.0906     0.3007   3.627  0.00113 **
-    ## Difficulty   -0.5975     0.9828  -0.608  0.54813   
+    ## (Intercept) -47.7034    76.4736  -0.624  0.53748   
+    ## SPY           1.3937     0.9748   1.430  0.16316   
+    ## BTC           1.0614     0.2924   3.630  0.00104 **
+    ## Difficulty   -0.3919     0.9297  -0.422  0.67637   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 295.1 on 28 degrees of freedom
-    ## Multiple R-squared:  0.5298, Adjusted R-squared:  0.4794 
-    ## F-statistic: 10.52 on 3 and 28 DF,  p-value: 8.381e-05
+    ## Residual standard error: 289.2 on 30 degrees of freedom
+    ## Multiple R-squared:  0.5197, Adjusted R-squared:  0.4717 
+    ## F-statistic: 10.82 on 3 and 30 DF,  p-value: 5.539e-05
 
 ``` r
 DFM_CIFR = lm(CIFR~SPY+BTC+Difficulty, data=monthly_nominal_final)
@@ -1754,20 +1759,20 @@ summary(DFM_CIFR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -705.02 -266.81   12.17  228.91  488.73 
+    ## -698.54 -239.70   -3.88  219.73  501.11 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept)  21.8180    90.1795   0.242  0.81059   
-    ## SPY           0.3483     1.0969   0.317  0.75323   
-    ## BTC           1.0619     0.3295   3.223  0.00321 **
-    ## Difficulty   -1.0850     1.0768  -1.008  0.32227   
+    ## (Intercept)   2.4978    83.3178   0.030  0.97628   
+    ## SPY           0.3256     1.0621   0.307  0.76131   
+    ## BTC           1.0608     0.3186   3.330  0.00231 **
+    ## Difficulty   -0.9258     1.0129  -0.914  0.36800   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 323.4 on 28 degrees of freedom
-    ## Multiple R-squared:  0.3778, Adjusted R-squared:  0.3111 
-    ## F-statistic: 5.667 on 3 and 28 DF,  p-value: 0.003653
+    ## Residual standard error: 315.1 on 30 degrees of freedom
+    ## Multiple R-squared:  0.3844, Adjusted R-squared:  0.3228 
+    ## F-statistic: 6.243 on 3 and 30 DF,  p-value: 0.002012
 
 ``` r
 DFM_HUT = lm(HUT~SPY+BTC+Difficulty, data=monthly_nominal_final)
@@ -1780,20 +1785,20 @@ summary(DFM_HUT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -665.16 -194.67  -11.29  196.12  445.36 
+    ## -661.36 -181.11  -29.89  186.89  447.05 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -42.4707    79.5952  -0.534    0.598    
-    ## SPY           0.8452     0.9682   0.873    0.390    
-    ## BTC           1.3841     0.2908   4.759 5.35e-05 ***
-    ## Difficulty   -0.3215     0.9504  -0.338    0.738    
+    ## (Intercept) -48.9802    73.0108  -0.671    0.507    
+    ## SPY           0.8351     0.9307   0.897    0.377    
+    ## BTC           1.3828     0.2792   4.953 2.66e-05 ***
+    ## Difficulty   -0.2653     0.8876  -0.299    0.767    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 285.4 on 28 degrees of freedom
-    ## Multiple R-squared:  0.6008, Adjusted R-squared:  0.558 
-    ## F-statistic: 14.05 on 3 and 28 DF,  p-value: 8.957e-06
+    ## Residual standard error: 276.1 on 30 degrees of freedom
+    ## Multiple R-squared:  0.611,  Adjusted R-squared:  0.5721 
+    ## F-statistic: 15.71 on 3 and 30 DF,  p-value: 2.519e-06
 
 ``` r
 DFM_BTDR = lm(BTDR~SPY+BTC+Difficulty, data=monthly_nominal_final)
@@ -1806,20 +1811,20 @@ summary(DFM_BTDR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -910.95 -172.26   26.88   87.99  905.13 
+    ## -911.57 -180.11   27.39   96.91  901.42 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept) -47.8542    99.7938  -0.480   0.6353  
-    ## SPY           2.2426     1.2139   1.847   0.0753 .
-    ## BTC          -0.5021     0.3646  -1.377   0.1794  
-    ## Difficulty    0.4229     1.1916   0.355   0.7253  
+    ## (Intercept) -46.9794    92.3790  -0.509   0.6148  
+    ## SPY           2.3358     1.1776   1.984   0.0565 .
+    ## BTC          -0.4687     0.3532  -1.327   0.1946  
+    ## Difficulty    0.3222     1.1230   0.287   0.7762  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 357.9 on 28 degrees of freedom
-    ## Multiple R-squared:  0.1137, Adjusted R-squared:  0.01879 
-    ## F-statistic: 1.198 on 3 and 28 DF,  p-value: 0.3287
+    ## Residual standard error: 349.3 on 30 degrees of freedom
+    ## Multiple R-squared:  0.1171, Adjusted R-squared:  0.02883 
+    ## F-statistic: 1.327 on 3 and 30 DF,  p-value: 0.2842
 
 As expected, those don’t add much explanatory power either. So let’s
 skip the residuals and correlations again.
@@ -1841,21 +1846,21 @@ summary(FFM_MARA)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -595.87 -173.38   54.07  178.96  607.13 
+    ## -597.79 -158.42   38.17  166.75  605.24 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -48.1340    88.3755  -0.545 0.590463    
-    ## SPY           2.4933     1.0281   2.425 0.022263 *  
-    ## BTC           1.2832     0.3235   3.967 0.000483 ***
-    ## Hashrate      1.2974     1.3687   0.948 0.351610    
-    ## Difficulty   -1.4258     1.4117  -1.010 0.321455    
+    ## (Intercept) -46.3013    79.3912  -0.583 0.564264    
+    ## SPY           2.4896     0.9871   2.522 0.017412 *  
+    ## BTC           1.2821     0.3073   4.172 0.000251 ***
+    ## Hashrate      1.2874     1.2746   1.010 0.320822    
+    ## Difficulty   -1.4267     1.3623  -1.047 0.303609    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 302.9 on 27 degrees of freedom
-    ## Multiple R-squared:  0.677,  Adjusted R-squared:  0.6292 
-    ## F-statistic: 14.15 on 4 and 27 DF,  p-value: 2.397e-06
+    ## Residual standard error: 292.3 on 29 degrees of freedom
+    ## Multiple R-squared:  0.6859, Adjusted R-squared:  0.6426 
+    ## F-statistic: 15.83 on 4 and 29 DF,  p-value: 5.583e-07
 
 ``` r
 FFM_CLSK = lm(CLSK~SPY+BTC+Hashrate+Difficulty, data=monthly_nominal_final)
@@ -1868,21 +1873,21 @@ summary(FFM_CLSK)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -464.91 -236.11  -28.93  234.15  479.52 
+    ## -470.17 -221.22  -15.92  202.85  492.00 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 17.94707   85.83638   0.209 0.835952    
-    ## SPY          1.01614    0.99855   1.018 0.317891    
-    ## BTC          1.27311    0.31417   4.052 0.000385 ***
-    ## Hashrate    -0.06494    1.32940  -0.049 0.961397    
-    ## Difficulty  -0.47021    1.37110  -0.343 0.734298    
+    ## (Intercept)  -7.4265    78.1185  -0.095 0.924915    
+    ## SPY           0.9561     0.9713   0.984 0.333062    
+    ## BTC           1.2347     0.3024   4.083 0.000319 ***
+    ## Hashrate      0.2302     1.2542   0.184 0.855667    
+    ## Difficulty   -0.4745     1.3404  -0.354 0.725876    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 294.2 on 27 degrees of freedom
-    ## Multiple R-squared:  0.5666, Adjusted R-squared:  0.5024 
-    ## F-statistic: 8.823 on 4 and 27 DF,  p-value: 0.0001085
+    ## Residual standard error: 287.6 on 29 degrees of freedom
+    ## Multiple R-squared:  0.5635, Adjusted R-squared:  0.5033 
+    ## F-statistic: 9.359 on 4 and 29 DF,  p-value: 5.524e-05
 
 ``` r
 FFM_RIOT = lm(RIOT~SPY+BTC+Hashrate+Difficulty, data=monthly_nominal_final)
@@ -1895,21 +1900,21 @@ summary(FFM_RIOT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -414.26 -197.26   -7.03  173.20  606.07 
+    ## -425.24 -184.44  -33.73  163.69  598.70 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept) -37.8761    87.6299  -0.432  0.66901   
-    ## SPY           1.4981     1.0194   1.470  0.15324   
-    ## BTC           1.0701     0.3207   3.336  0.00248 **
-    ## Hashrate      0.2892     1.3572   0.213  0.83287   
-    ## Difficulty   -0.8062     1.3997  -0.576  0.56942   
+    ## (Intercept) -55.4723    79.6389  -0.697   0.4916   
+    ## SPY           1.4190     0.9902   1.433   0.1625   
+    ## BTC           1.0253     0.3083   3.326   0.0024 **
+    ## Hashrate      0.5465     1.2786   0.427   0.6722   
+    ## Difficulty   -0.8148     1.3665  -0.596   0.5556   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 300.3 on 27 degrees of freedom
-    ## Multiple R-squared:  0.5306, Adjusted R-squared:  0.461 
-    ## F-statistic:  7.63 on 4 and 27 DF,  p-value: 0.0003005
+    ## Residual standard error: 293.2 on 29 degrees of freedom
+    ## Multiple R-squared:  0.5227, Adjusted R-squared:  0.4569 
+    ## F-statistic: 7.941 on 4 and 29 DF,  p-value: 0.0001886
 
 ``` r
 FFM_CIFR = lm(CIFR~SPY+BTC+Hashrate+Difficulty, data=monthly_nominal_final)
@@ -1922,21 +1927,21 @@ summary(FFM_CIFR)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -709.19 -280.90    2.73  240.68  496.54 
+    ## -706.27 -254.46   10.58  224.29  508.51 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)   
-    ## (Intercept)  11.1784    95.8407   0.117  0.90801   
-    ## SPY           0.3641     1.1149   0.327  0.74651   
-    ## BTC           1.0223     0.3508   2.914  0.00708 **
-    ## Hashrate      0.5597     1.4843   0.377  0.70905   
-    ## Difficulty   -1.4889     1.5309  -0.973  0.33939   
+    ## (Intercept)  -7.7981    86.6351  -0.090  0.92890   
+    ## SPY           0.3592     1.0772   0.333  0.74121   
+    ## BTC           1.0129     0.3354   3.020  0.00523 **
+    ## Hashrate      0.7243     1.3909   0.521  0.60652   
+    ## Difficulty   -1.4862     1.4865  -1.000  0.32569   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 328.5 on 27 degrees of freedom
-    ## Multiple R-squared:  0.3811, Adjusted R-squared:  0.2894 
-    ## F-statistic: 4.156 on 4 and 27 DF,  p-value: 0.009456
+    ## Residual standard error: 318.9 on 29 degrees of freedom
+    ## Multiple R-squared:  0.3901, Adjusted R-squared:  0.3059 
+    ## F-statistic: 4.637 on 4 and 29 DF,  p-value: 0.005126
 
 ``` r
 FFM_HUT = lm(HUT~SPY+BTC+Hashrate+Difficulty, data=monthly_nominal_final)
@@ -1949,21 +1954,21 @@ summary(FFM_HUT)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -640.18 -187.31   -2.28  143.18  470.92 
+    ## -644.18 -190.55    3.02  142.55  459.28 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -96.3871    77.1442  -1.249 0.222227    
-    ## SPY           0.9255     0.8974   1.031 0.311549    
-    ## BTC           1.1831     0.2824   4.190 0.000267 ***
-    ## Hashrate      2.8364     1.1948   2.374 0.024966 *  
-    ## Difficulty   -2.3685     1.2323  -1.922 0.065209 .  
+    ## (Intercept) -87.5519    69.5159  -1.259  0.21791    
+    ## SPY           0.9608     0.8643   1.112  0.27541    
+    ## BTC           1.2034     0.2691   4.472  0.00011 ***
+    ## Hashrate      2.7134     1.1161   2.431  0.02146 *  
+    ## Difficulty   -2.3648     1.1928  -1.983  0.05696 .  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 264.4 on 27 degrees of freedom
-    ## Multiple R-squared:  0.6697, Adjusted R-squared:  0.6208 
-    ## F-statistic: 13.69 on 4 and 27 DF,  p-value: 3.208e-06
+    ## Residual standard error: 255.9 on 29 degrees of freedom
+    ## Multiple R-squared:  0.6769, Adjusted R-squared:  0.6323 
+    ## F-statistic: 15.19 on 4 and 29 DF,  p-value: 8.309e-07
 
 ``` r
 FFM_BTDR = lm(BTDR~SPY+BTC+Hashrate+Difficulty, data=monthly_nominal_final)
@@ -1975,22 +1980,22 @@ summary(FFM_BTDR)
     ## lm(formula = BTDR ~ SPY + BTC + Hashrate + Difficulty, data = monthly_nominal_final)
     ## 
     ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -914.79 -159.20   34.11  146.23  890.33 
+    ##    Min     1Q Median     3Q    Max 
+    ## -913.5 -188.7   32.3  134.4  890.0 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept) -25.5147   105.3300  -0.242   0.8104  
-    ## SPY           2.2093     1.2253   1.803   0.0826 .
-    ## BTC          -0.4188     0.3855  -1.086   0.2870  
-    ## Hashrate     -1.1752     1.6313  -0.720   0.4775  
-    ## Difficulty    1.2711     1.6825   0.755   0.4565  
+    ## (Intercept) -29.3446    95.4325  -0.307   0.7607  
+    ## SPY           2.2783     1.1865   1.920   0.0647 .
+    ## BTC          -0.3867     0.3694  -1.047   0.3039  
+    ## Hashrate     -1.2405     1.5322  -0.810   0.4247  
+    ## Difficulty    1.2821     1.6375   0.783   0.4400  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 361 on 27 degrees of freedom
-    ## Multiple R-squared:  0.1305, Adjusted R-squared:  0.001635 
-    ## F-statistic: 1.013 on 4 and 27 DF,  p-value: 0.4183
+    ## Residual standard error: 351.3 on 29 degrees of freedom
+    ## Multiple R-squared:  0.1366, Adjusted R-squared:  0.01755 
+    ## F-statistic: 1.147 on 4 and 29 DF,  p-value: 0.3542
 
 ## Generating Summaries by Stock
 
@@ -2014,32 +2019,36 @@ and maximum values for each asset.
 # Generate summary statistics for the final nominal returns
 stargazer(monthly_nominal_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 ```
 
     ## 
-    ## ===================================================
-    ## Statistic  N   Mean   St. Dev.    Min        Max   
-    ## ---------------------------------------------------
-    ## INF        32  5.174   3.736     -0.077    14.887  
-    ## RF         32  3.208   1.041     1.283      4.798  
-    ## BTC        32 20.199  218.832   -569.177   435.210 
-    ## MARA       32 -7.569  497.362   -875.587  1,066.745
-    ## CLSK       32 16.942  416.996   -774.014   877.120 
-    ## RIOT       32 -37.136 409.067   -883.316   737.936 
-    ## CIFR       32 -24.583 389.626   -687.697   914.568 
-    ## HUT        32 -28.569 429.338   -781.097   984.047 
-    ## BTDR       32 -12.165 361.266  -1,136.203  987.126 
-    ## SPY        32  8.149   64.095   -116.402   105.709 
-    ## Hashrate   32 67.230   60.657   -64.583    227.352 
-    ## Difficulty 32 65.153   55.612   -56.532    198.738 
-    ## ---------------------------------------------------
+    ## ================================================
+    ## Statistic  N   Mean  St. Dev.    Min      Max   
+    ## ------------------------------------------------
+    ## INF        34  4.98    3.73     -0.08    14.89  
+    ## RF         34  3.28    1.06     1.28      4.80  
+    ## BTC        34 17.06   216.18   -569.18   435.21 
+    ## MARA       34 -12.26  488.88   -875.59  1,066.74
+    ## CLSK       34  6.15   408.06   -774.01   877.12 
+    ## RIOT       34 -43.01  397.85   -883.32   737.94 
+    ## CIFR       34 -34.71  382.84   -687.70   914.57 
+    ## HUT        34 -35.34  422.07   -781.10   984.05 
+    ## BTDR       34 -16.23  354.46  -1,136.20  987.13 
+    ## SPY        34  7.96   63.55    -116.40   105.71 
+    ## Hashrate   34 63.36   62.04    -64.58    227.35 
+    ## Difficulty 34 62.54   55.61    -56.53    198.74 
+    ## ------------------------------------------------
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(monthly_nominal_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_nominal.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset nominal returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2048,28 +2057,29 @@ stargazer(monthly_nominal_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:17
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:27
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset nominal returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{SummaryStats_nominal} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ## Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
     ## \hline \\[-1.8ex] 
-    ## INF & 32 & 5.174 & 3.736 & $-$0.077 & 14.887 \\ 
-    ## RF & 32 & 3.208 & 1.041 & 1.283 & 4.798 \\ 
-    ## BTC & 32 & 20.199 & 218.832 & $-$569.177 & 435.210 \\ 
-    ## MARA & 32 & $-$7.569 & 497.362 & $-$875.587 & 1,066.745 \\ 
-    ## CLSK & 32 & 16.942 & 416.996 & $-$774.014 & 877.120 \\ 
-    ## RIOT & 32 & $-$37.136 & 409.067 & $-$883.316 & 737.936 \\ 
-    ## CIFR & 32 & $-$24.583 & 389.626 & $-$687.697 & 914.568 \\ 
-    ## HUT & 32 & $-$28.569 & 429.338 & $-$781.097 & 984.047 \\ 
-    ## BTDR & 32 & $-$12.165 & 361.266 & $-$1,136.203 & 987.126 \\ 
-    ## SPY & 32 & 8.149 & 64.095 & $-$116.402 & 105.709 \\ 
-    ## Hashrate & 32 & 67.230 & 60.657 & $-$64.583 & 227.352 \\ 
-    ## Difficulty & 32 & 65.153 & 55.612 & $-$56.532 & 198.738 \\ 
+    ## INF & 34 & 4.98 & 3.73 & -0.08 & 14.89 \\ 
+    ## RF & 34 & 3.28 & 1.06 & 1.28 & 4.80 \\ 
+    ## BTC & 34 & 17.06 & 216.18 & -569.18 & 435.21 \\ 
+    ## MARA & 34 & -12.26 & 488.88 & -875.59 & 1,066.74 \\ 
+    ## CLSK & 34 & 6.15 & 408.06 & -774.01 & 877.12 \\ 
+    ## RIOT & 34 & -43.01 & 397.85 & -883.32 & 737.94 \\ 
+    ## CIFR & 34 & -34.71 & 382.84 & -687.70 & 914.57 \\ 
+    ## HUT & 34 & -35.34 & 422.07 & -781.10 & 984.05 \\ 
+    ## BTDR & 34 & -16.23 & 354.46 & -1,136.20 & 987.13 \\ 
+    ## SPY & 34 & 7.96 & 63.55 & -116.40 & 105.71 \\ 
+    ## Hashrate & 34 & 63.36 & 62.04 & -64.58 & 227.35 \\ 
+    ## Difficulty & 34 & 62.54 & 55.61 & -56.53 & 198.74 \\ 
     ## \hline \\[-1.8ex] 
     ## \end{tabular} 
     ## \end{table}
@@ -2078,31 +2088,35 @@ stargazer(monthly_nominal_final,
 # Generate summary statistics for the final real returns
 stargazer(monthly_real_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 ```
 
     ## 
-    ## ===================================================
-    ## Statistic  N   Mean   St. Dev.    Min        Max   
-    ## ---------------------------------------------------
-    ## RF         32 -1.736   3.968    -10.222     3.813  
-    ## BTC        32 16.405  204.657   -508.382   408.305 
-    ## MARA       32 -8.440  475.903   -851.841  1,067.647
-    ## CLSK       32 12.534  393.391   -741.655   828.001 
-    ## RIOT       32 -36.785 389.376   -845.710   689.131 
-    ## CIFR       32 -23.668 370.147   -611.544   855.476 
-    ## HUT        32 -28.606 407.024   -738.850   920.908 
-    ## BTDR       32 -17.055 352.871  -1,126.466  960.393 
-    ## SPY        32  3.250   61.583   -115.682   105.868 
-    ## Hashrate   32 67.230   60.657   -64.583    227.352 
-    ## Difficulty 32 65.153   55.612   -56.532    198.738 
-    ## ---------------------------------------------------
+    ## ================================================
+    ## Statistic  N   Mean  St. Dev.    Min      Max   
+    ## ------------------------------------------------
+    ## RF         34 -1.48    4.01    -10.22     4.41  
+    ## BTC        34 13.58   202.55   -508.38   408.31 
+    ## MARA       34 -12.76  468.09   -851.84  1,067.65
+    ## CLSK       34  2.22   385.12   -741.65   828.00 
+    ## RIOT       34 -42.55  378.77   -845.71   689.13 
+    ## CIFR       34 -33.54  363.95   -611.54   855.48 
+    ## HUT        34 -35.05  400.45   -738.85   920.91 
+    ## BTDR       34 -20.63  346.20  -1,126.47  960.39 
+    ## SPY        34  3.29   61.21    -115.68   105.87 
+    ## Hashrate   34 63.36   62.04    -64.58    227.35 
+    ## Difficulty 34 62.54   55.61    -56.53    198.74 
+    ## ------------------------------------------------
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(monthly_real_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_real.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset real returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2111,27 +2125,28 @@ stargazer(monthly_real_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:17
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:28
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset real returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{SummaryStats_real} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ## Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
     ## \hline \\[-1.8ex] 
-    ## RF & 32 & $-$1.736 & 3.968 & $-$10.222 & 3.813 \\ 
-    ## BTC & 32 & 16.405 & 204.657 & $-$508.382 & 408.305 \\ 
-    ## MARA & 32 & $-$8.440 & 475.903 & $-$851.841 & 1,067.647 \\ 
-    ## CLSK & 32 & 12.534 & 393.391 & $-$741.655 & 828.001 \\ 
-    ## RIOT & 32 & $-$36.785 & 389.376 & $-$845.710 & 689.131 \\ 
-    ## CIFR & 32 & $-$23.668 & 370.147 & $-$611.544 & 855.476 \\ 
-    ## HUT & 32 & $-$28.606 & 407.024 & $-$738.850 & 920.908 \\ 
-    ## BTDR & 32 & $-$17.055 & 352.871 & $-$1,126.466 & 960.393 \\ 
-    ## SPY & 32 & 3.250 & 61.583 & $-$115.682 & 105.868 \\ 
-    ## Hashrate & 32 & 67.230 & 60.657 & $-$64.583 & 227.352 \\ 
-    ## Difficulty & 32 & 65.153 & 55.612 & $-$56.532 & 198.738 \\ 
+    ## RF & 34 & -1.48 & 4.01 & -10.22 & 4.41 \\ 
+    ## BTC & 34 & 13.58 & 202.55 & -508.38 & 408.31 \\ 
+    ## MARA & 34 & -12.76 & 468.09 & -851.84 & 1,067.65 \\ 
+    ## CLSK & 34 & 2.22 & 385.12 & -741.65 & 828.00 \\ 
+    ## RIOT & 34 & -42.55 & 378.77 & -845.71 & 689.13 \\ 
+    ## CIFR & 34 & -33.54 & 363.95 & -611.54 & 855.48 \\ 
+    ## HUT & 34 & -35.05 & 400.45 & -738.85 & 920.91 \\ 
+    ## BTDR & 34 & -20.63 & 346.20 & -1,126.47 & 960.39 \\ 
+    ## SPY & 34 & 3.29 & 61.21 & -115.68 & 105.87 \\ 
+    ## Hashrate & 34 & 63.36 & 62.04 & -64.58 & 227.35 \\ 
+    ## Difficulty & 34 & 62.54 & 55.61 & -56.53 & 198.74 \\ 
     ## \hline \\[-1.8ex] 
     ## \end{tabular} 
     ## \end{table}
@@ -2140,30 +2155,34 @@ stargazer(monthly_real_final,
 # Generate summary statistics for the final real returns
 stargazer(monthly_excess_final, 
           summary=TRUE, 
-          type='text')
+          type='text',
+          align=TRUE,
+          digits=2)
 ```
 
     ## 
-    ## ===================================================
-    ## Statistic  N   Mean   St. Dev.    Min        Max   
-    ## ---------------------------------------------------
-    ## BTC        32 18.141  203.464   -498.161   409.336 
-    ## MARA       32 -6.704  475.113   -852.552  1,064.672
-    ## CLSK       32 14.270  392.870   -739.470   829.032 
-    ## RIOT       32 -35.049 388.384   -843.524   691.630 
-    ## CIFR       32 -21.932 368.702   -601.323   857.974 
-    ## HUT        32 -26.870 406.255   -739.560   923.406 
-    ## BTDR       32 -15.319 353.164  -1,130.279  959.196 
-    ## SPY        32  4.985   60.870   -114.656   102.893 
-    ## Hashrate   32 67.230   60.657   -64.583    227.352 
-    ## Difficulty 32 65.153   55.612   -56.532    198.738 
-    ## ---------------------------------------------------
+    ## ================================================
+    ## Statistic  N   Mean  St. Dev.    Min      Max   
+    ## ------------------------------------------------
+    ## BTC        34 15.06   201.40   -498.16   409.34 
+    ## MARA       34 -11.28  467.30   -852.55  1,064.67
+    ## CLSK       34  3.71   384.69   -739.47   829.03 
+    ## RIOT       34 -41.07  377.85   -843.52   691.63 
+    ## CIFR       34 -32.06  362.63   -601.32   857.97 
+    ## HUT        34 -33.57  399.71   -739.56   923.41 
+    ## BTDR       34 -19.15  346.46  -1,130.28  959.20 
+    ## SPY        34  4.77   60.45    -114.66   102.89 
+    ## Hashrate   34 63.36   62.04    -64.58    227.35 
+    ## Difficulty 34 62.54   55.61    -56.53    198.74 
+    ## ------------------------------------------------
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(monthly_excess_final, 
           summary=TRUE,
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/SummaryStats_excess.tex",
           title="Summary Statistics for the Final Monthly Dataset. Asset excess returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2172,26 +2191,27 @@ stargazer(monthly_excess_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:17
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:28
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset excess returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{SummaryStats_excess} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ## Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
     ## \hline \\[-1.8ex] 
-    ## BTC & 32 & 18.141 & 203.464 & $-$498.161 & 409.336 \\ 
-    ## MARA & 32 & $-$6.704 & 475.113 & $-$852.552 & 1,064.672 \\ 
-    ## CLSK & 32 & 14.270 & 392.870 & $-$739.470 & 829.032 \\ 
-    ## RIOT & 32 & $-$35.049 & 388.384 & $-$843.524 & 691.630 \\ 
-    ## CIFR & 32 & $-$21.932 & 368.702 & $-$601.323 & 857.974 \\ 
-    ## HUT & 32 & $-$26.870 & 406.255 & $-$739.560 & 923.406 \\ 
-    ## BTDR & 32 & $-$15.319 & 353.164 & $-$1,130.279 & 959.196 \\ 
-    ## SPY & 32 & 4.985 & 60.870 & $-$114.656 & 102.893 \\ 
-    ## Hashrate & 32 & 67.230 & 60.657 & $-$64.583 & 227.352 \\ 
-    ## Difficulty & 32 & 65.153 & 55.612 & $-$56.532 & 198.738 \\ 
+    ## BTC & 34 & 15.06 & 201.40 & -498.16 & 409.34 \\ 
+    ## MARA & 34 & -11.28 & 467.30 & -852.55 & 1,064.67 \\ 
+    ## CLSK & 34 & 3.71 & 384.69 & -739.47 & 829.03 \\ 
+    ## RIOT & 34 & -41.07 & 377.85 & -843.52 & 691.63 \\ 
+    ## CIFR & 34 & -32.06 & 362.63 & -601.32 & 857.97 \\ 
+    ## HUT & 34 & -33.57 & 399.71 & -739.56 & 923.41 \\ 
+    ## BTDR & 34 & -19.15 & 346.46 & -1,130.28 & 959.20 \\ 
+    ## SPY & 34 & 4.77 & 60.45 & -114.66 & 102.89 \\ 
+    ## Hashrate & 34 & 63.36 & 62.04 & -64.58 & 227.35 \\ 
+    ## Difficulty & 34 & 62.54 & 55.61 & -56.53 & 198.74 \\ 
     ## \hline \\[-1.8ex] 
     ## \end{tabular} 
     ## \end{table}
@@ -2208,42 +2228,46 @@ standard errors and F-statistics from the tables to keep them concise.
 # Generate summary statistics for the final real returns
 stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## =========================================================
-    ##                          Dependent variable:             
-    ##              --------------------------------------------
-    ##                                  MARA                    
-    ##                (1)      (2)      (3)      (4)      (5)   
-    ## ---------------------------------------------------------
-    ## SPY          5.057*** 2.499**  2.528**  2.457**  2.493** 
-    ##              (1.075)  (1.008)  (1.028)  (1.025)  (1.028) 
-    ##                                                          
-    ## BTC                   1.340*** 1.299*** 1.375*** 1.283***
-    ##                       (0.295)  (0.323)  (0.308)  (0.323) 
-    ##                                                          
-    ## Hashrate                        0.330             1.297  
-    ##                                (0.978)           (1.369) 
-    ##                                                          
-    ## Difficulty                               -0.490   -1.426 
-    ##                                         (1.007)  (1.412) 
-    ##                                                          
-    ## Constant     -48.777  -54.994  -76.603  -23.473  -48.134 
-    ##              (68.357) (53.190) (83.790) (84.306) (88.376)
-    ##                                                          
-    ## ---------------------------------------------------------
-    ## Observations    32       32       32       32       32   
-    ## R2            0.425    0.663    0.665    0.666    0.677  
-    ## Adjusted R2   0.405    0.640    0.629    0.631    0.629  
-    ## =========================================================
-    ## Note:                         *p<0.1; **p<0.05; ***p<0.01
+    ## ====================================================
+    ##                        Dependent variable:          
+    ##              ---------------------------------------
+    ##                               MARA                  
+    ##                (1)     (2)     (3)     (4)     (5)  
+    ## ----------------------------------------------------
+    ## SPY          5.10*** 2.48**  2.52**  2.43**  2.49** 
+    ##              (1.02)  (0.97)  (0.99)  (0.99)  (0.99) 
+    ##                                                     
+    ## BTC                  1.34*** 1.30*** 1.37*** 1.28***
+    ##                      (0.28)  (0.31)  (0.30)  (0.31) 
+    ##                                                     
+    ## Hashrate                      0.32            1.29  
+    ##                              (0.88)          (1.27) 
+    ##                                                     
+    ## Difficulty                            -0.43   -1.43 
+    ##                                      (0.94)  (1.36) 
+    ##                                                     
+    ## Constant     -52.84  -54.80  -74.82  -28.00  -46.30 
+    ##              (64.28) (49.90) (74.70) (77.32) (79.39)
+    ##                                                     
+    ## ----------------------------------------------------
+    ## Observations   34      34      34      34      34   
+    ## R2            0.44    0.67    0.67    0.67    0.69  
+    ## Adjusted R2   0.42    0.65    0.64    0.64    0.64  
+    ## ====================================================
+    ## Note:                    *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_MARA.tex",
           title="Factor Model Results for Marathon Digital Holdings (MARA). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2253,38 +2277,39 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:18
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:29
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Marathon Digital Holdings (MARA). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_MARA} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{MARA} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 5.057$^{***}$ & 2.499$^{**}$ & 2.528$^{**}$ & 2.457$^{**}$ & 2.493$^{**}$ \\ 
-    ##   & (1.075) & (1.008) & (1.028) & (1.025) & (1.028) \\ 
+    ##  SPY & 5.10^{***} & 2.48^{**} & 2.52^{**} & 2.43^{**} & 2.49^{**} \\ 
+    ##   & (1.02) & (0.97) & (0.99) & (0.99) & (0.99) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & 1.340$^{***}$ & 1.299$^{***}$ & 1.375$^{***}$ & 1.283$^{***}$ \\ 
-    ##   &  & (0.295) & (0.323) & (0.308) & (0.323) \\ 
+    ##  BTC &  & 1.34^{***} & 1.30^{***} & 1.37^{***} & 1.28^{***} \\ 
+    ##   &  & (0.28) & (0.31) & (0.30) & (0.31) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & 0.330 &  & 1.297 \\ 
-    ##   &  &  & (0.978) &  & (1.369) \\ 
+    ##  Hashrate &  &  & 0.32 &  & 1.29 \\ 
+    ##   &  &  & (0.88) &  & (1.27) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & $-$0.490 & $-$1.426 \\ 
-    ##   &  &  &  & (1.007) & (1.412) \\ 
+    ##  Difficulty &  &  &  & -0.43 & -1.43 \\ 
+    ##   &  &  &  & (0.94) & (1.36) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$48.777 & $-$54.994 & $-$76.603 & $-$23.473 & $-$48.134 \\ 
-    ##   & (68.357) & (53.190) & (83.790) & (84.306) & (88.376) \\ 
+    ##  Constant & -52.84 & -54.80 & -74.82 & -28.00 & -46.30 \\ 
+    ##   & (64.28) & (49.90) & (74.70) & (77.32) & (79.39) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.425 & 0.663 & 0.665 & 0.666 & 0.677 \\ 
-    ## Adjusted R$^{2}$ & 0.405 & 0.640 & 0.629 & 0.631 & 0.629 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.44} & \multicolumn{1}{c}{0.67} & \multicolumn{1}{c}{0.67} & \multicolumn{1}{c}{0.67} & \multicolumn{1}{c}{0.69} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.42} & \multicolumn{1}{c}{0.65} & \multicolumn{1}{c}{0.64} & \multicolumn{1}{c}{0.64} & \multicolumn{1}{c}{0.64} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -2295,42 +2320,46 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## =========================================================
-    ##                          Dependent variable:             
-    ##              --------------------------------------------
-    ##                                  CLSK                    
-    ##                (1)      (2)      (3)      (4)      (5)   
-    ## ---------------------------------------------------------
-    ## SPY          3.413***  1.062    1.028    1.018    1.016  
-    ##              (1.011)  (0.964)  (0.982)  (0.980)  (0.999) 
-    ##                                                          
-    ## BTC                   1.231*** 1.278*** 1.269*** 1.273***
-    ##                       (0.282)  (0.309)  (0.294)  (0.314) 
-    ##                                                          
-    ## Hashrate                        -0.384            -0.065 
-    ##                                (0.935)           (1.329) 
-    ##                                                          
-    ## Difficulty                               -0.517   -0.470 
-    ##                                         (0.962)  (1.371) 
-    ##                                                          
-    ## Constant     -10.871  -16.583   8.558    16.713   17.947 
-    ##              (64.326) (50.873) (80.061) (80.558) (85.836)
-    ##                                                          
-    ## ---------------------------------------------------------
-    ## Observations    32       32       32       32       32   
-    ## R2            0.275    0.562    0.565    0.567    0.567  
-    ## Adjusted R2   0.251    0.532    0.518    0.520    0.502  
-    ## =========================================================
-    ## Note:                         *p<0.1; **p<0.05; ***p<0.01
+    ## ====================================================
+    ##                        Dependent variable:          
+    ##              ---------------------------------------
+    ##                               CLSK                  
+    ##                (1)     (2)     (3)     (4)     (5)  
+    ## ----------------------------------------------------
+    ## SPY          3.39***  0.98    0.97    0.95    0.96  
+    ##              (0.96)  (0.93)  (0.96)  (0.95)  (0.97) 
+    ##                                                     
+    ## BTC                  1.23*** 1.24*** 1.25*** 1.23***
+    ##                      (0.27)  (0.30)  (0.29)  (0.30) 
+    ##                                                     
+    ## Hashrate                      -0.09           0.23  
+    ##                              (0.85)          (1.25) 
+    ##                                                     
+    ## Difficulty                            -0.30   -0.47 
+    ##                                      (0.91)  (1.34) 
+    ##                                                     
+    ## Constant     -20.80  -22.61  -16.91   -4.15   -7.43 
+    ##              (60.87) (48.20) (72.30) (74.82) (78.12)
+    ##                                                     
+    ## ----------------------------------------------------
+    ## Observations   34      34      34      34      34   
+    ## R2            0.28    0.56    0.56    0.56    0.56  
+    ## Adjusted R2   0.26    0.53    0.52    0.52    0.50  
+    ## ====================================================
+    ## Note:                    *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_CLSK.tex",
           title="Factor Model Results for Cleanspark (CLSK). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2340,38 +2369,39 @@ stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:19
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:30
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Cleanspark (CLSK). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_CLSK} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{CLSK} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 3.413$^{***}$ & 1.062 & 1.028 & 1.018 & 1.016 \\ 
-    ##   & (1.011) & (0.964) & (0.982) & (0.980) & (0.999) \\ 
+    ##  SPY & 3.39^{***} & 0.98 & 0.97 & 0.95 & 0.96 \\ 
+    ##   & (0.96) & (0.93) & (0.96) & (0.95) & (0.97) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & 1.231$^{***}$ & 1.278$^{***}$ & 1.269$^{***}$ & 1.273$^{***}$ \\ 
-    ##   &  & (0.282) & (0.309) & (0.294) & (0.314) \\ 
+    ##  BTC &  & 1.23^{***} & 1.24^{***} & 1.25^{***} & 1.23^{***} \\ 
+    ##   &  & (0.27) & (0.30) & (0.29) & (0.30) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & $-$0.384 &  & $-$0.065 \\ 
-    ##   &  &  & (0.935) &  & (1.329) \\ 
+    ##  Hashrate &  &  & -0.09 &  & 0.23 \\ 
+    ##   &  &  & (0.85) &  & (1.25) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & $-$0.517 & $-$0.470 \\ 
-    ##   &  &  &  & (0.962) & (1.371) \\ 
+    ##  Difficulty &  &  &  & -0.30 & -0.47 \\ 
+    ##   &  &  &  & (0.91) & (1.34) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$10.871 & $-$16.583 & 8.558 & 16.713 & 17.947 \\ 
-    ##   & (64.326) & (50.873) & (80.061) & (80.558) & (85.836) \\ 
+    ##  Constant & -20.80 & -22.61 & -16.91 & -4.15 & -7.43 \\ 
+    ##   & (60.87) & (48.20) & (72.30) & (74.82) & (78.12) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.275 & 0.562 & 0.565 & 0.567 & 0.567 \\ 
-    ## Adjusted R$^{2}$ & 0.251 & 0.532 & 0.518 & 0.520 & 0.502 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.28} & \multicolumn{1}{c}{0.56} & \multicolumn{1}{c}{0.56} & \multicolumn{1}{c}{0.56} & \multicolumn{1}{c}{0.56} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.26} & \multicolumn{1}{c}{0.53} & \multicolumn{1}{c}{0.52} & \multicolumn{1}{c}{0.52} & \multicolumn{1}{c}{0.50} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -2382,42 +2412,46 @@ stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## =========================================================
-    ##                          Dependent variable:             
-    ##              --------------------------------------------
-    ##                                  RIOT                    
-    ##                (1)      (2)      (3)      (4)      (5)   
-    ## ---------------------------------------------------------
-    ## SPY          3.541***  1.541    1.518    1.490    1.498  
-    ##              (0.969)  (0.987)  (1.007)  (1.001)  (1.019) 
-    ##                                                          
-    ## BTC                   1.047*** 1.079*** 1.091*** 1.070***
-    ##                       (0.289)  (0.317)  (0.301)  (0.321) 
-    ##                                                          
-    ## Hashrate                        -0.258            0.289  
-    ##                                (0.958)           (1.357) 
-    ##                                                          
-    ## Difficulty                               -0.597   -0.806 
-    ##                                         (0.983)  (1.400) 
-    ##                                                          
-    ## Constant     -65.992  -70.852  -53.973  -32.379  -37.876 
-    ##              (61.666) (52.051) (82.056) (82.306) (87.630)
-    ##                                                          
-    ## ---------------------------------------------------------
-    ## Observations    32       32       32       32       32   
-    ## R2            0.308    0.524    0.525    0.530    0.531  
-    ## Adjusted R2   0.285    0.491    0.474    0.479    0.461  
-    ## =========================================================
-    ## Note:                         *p<0.1; **p<0.05; ***p<0.01
+    ## ====================================================
+    ##                        Dependent variable:          
+    ##              ---------------------------------------
+    ##                               RIOT                  
+    ##                (1)     (2)     (3)     (4)     (5)  
+    ## ----------------------------------------------------
+    ## SPY          3.46***  1.44    1.44    1.39    1.42  
+    ##              (0.92)  (0.96)  (0.98)  (0.97)  (0.99) 
+    ##                                                     
+    ## BTC                  1.03*** 1.03*** 1.06*** 1.03***
+    ##                      (0.28)  (0.30)  (0.29)  (0.31) 
+    ##                                                     
+    ## Hashrate                      -0.01           0.55  
+    ##                              (0.87)          (1.28) 
+    ##                                                     
+    ## Difficulty                            -0.39   -0.81 
+    ##                                      (0.93)  (1.37) 
+    ##                                                     
+    ## Constant     -70.58  -72.10  -71.76  -47.70  -55.47 
+    ##              (58.18) (49.33) (74.00) (76.47) (79.64)
+    ##                                                     
+    ## ----------------------------------------------------
+    ## Observations   34      34      34      34      34   
+    ## R2            0.31    0.52    0.52    0.52    0.52  
+    ## Adjusted R2   0.28    0.49    0.47    0.47    0.46  
+    ## ====================================================
+    ## Note:                    *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_RIOT.tex",
           title="Factor Model Results for Riot Blockchain (RIOT). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2427,38 +2461,39 @@ stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:20
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:31
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Riot Blockchain (RIOT). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_RIOT} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{RIOT} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 3.541$^{***}$ & 1.541 & 1.518 & 1.490 & 1.498 \\ 
-    ##   & (0.969) & (0.987) & (1.007) & (1.001) & (1.019) \\ 
+    ##  SPY & 3.46^{***} & 1.44 & 1.44 & 1.39 & 1.42 \\ 
+    ##   & (0.92) & (0.96) & (0.98) & (0.97) & (0.99) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & 1.047$^{***}$ & 1.079$^{***}$ & 1.091$^{***}$ & 1.070$^{***}$ \\ 
-    ##   &  & (0.289) & (0.317) & (0.301) & (0.321) \\ 
+    ##  BTC &  & 1.03^{***} & 1.03^{***} & 1.06^{***} & 1.03^{***} \\ 
+    ##   &  & (0.28) & (0.30) & (0.29) & (0.31) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & $-$0.258 &  & 0.289 \\ 
-    ##   &  &  & (0.958) &  & (1.357) \\ 
+    ##  Hashrate &  &  & -0.01 &  & 0.55 \\ 
+    ##   &  &  & (0.87) &  & (1.28) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & $-$0.597 & $-$0.806 \\ 
-    ##   &  &  &  & (0.983) & (1.400) \\ 
+    ##  Difficulty &  &  &  & -0.39 & -0.81 \\ 
+    ##   &  &  &  & (0.93) & (1.37) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$65.992 & $-$70.852 & $-$53.973 & $-$32.379 & $-$37.876 \\ 
-    ##   & (61.666) & (52.051) & (82.056) & (82.306) & (87.630) \\ 
+    ##  Constant & -70.58 & -72.10 & -71.76 & -47.70 & -55.47 \\ 
+    ##   & (58.18) & (49.33) & (74.00) & (76.47) & (79.64) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.308 & 0.524 & 0.525 & 0.530 & 0.531 \\ 
-    ## Adjusted R$^{2}$ & 0.285 & 0.491 & 0.474 & 0.479 & 0.461 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.31} & \multicolumn{1}{c}{0.52} & \multicolumn{1}{c}{0.52} & \multicolumn{1}{c}{0.52} & \multicolumn{1}{c}{0.52} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.28} & \multicolumn{1}{c}{0.49} & \multicolumn{1}{c}{0.47} & \multicolumn{1}{c}{0.47} & \multicolumn{1}{c}{0.46} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -2469,42 +2504,46 @@ stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## =========================================================
-    ##                          Dependent variable:             
-    ##              --------------------------------------------
-    ##                                  CIFR                    
-    ##                (1)      (2)      (3)      (4)      (5)   
-    ## ---------------------------------------------------------
-    ## SPY          2.319**   0.441    0.401    0.348    0.364  
-    ##              (1.026)  (1.093)  (1.113)  (1.097)  (1.115) 
-    ##                                                          
-    ## BTC                   0.983*** 1.039*** 1.062*** 1.022***
-    ##                       (0.320)  (0.350)  (0.329)  (0.351) 
-    ##                                                          
-    ## Hashrate                        -0.450            0.560  
-    ##                                (1.059)           (1.484) 
-    ##                                                          
-    ## Difficulty                               -1.085   -1.489 
-    ##                                         (1.077)  (1.531) 
-    ##                                                          
-    ## Constant     -43.483  -48.046  -18.551   21.818   11.178 
-    ##              (65.258) (57.675) (90.748) (90.179) (95.841)
-    ##                                                          
-    ## ---------------------------------------------------------
-    ## Observations    32       32       32       32       32   
-    ## R2            0.146    0.355    0.359    0.378    0.381  
-    ## Adjusted R2   0.117    0.311    0.291    0.311    0.289  
-    ## =========================================================
-    ## Note:                         *p<0.1; **p<0.05; ***p<0.01
+    ## ====================================================
+    ##                        Dependent variable:          
+    ##              ---------------------------------------
+    ##                               CIFR                  
+    ##                (1)     (2)     (3)     (4)     (5)  
+    ## ----------------------------------------------------
+    ## SPY          2.38**   0.43    0.39    0.33    0.36  
+    ##              (0.98)  (1.05)  (1.08)  (1.06)  (1.08) 
+    ##                                                     
+    ## BTC                  0.99*** 1.03*** 1.06*** 1.01***
+    ##                      (0.31)  (0.33)  (0.32)  (0.34) 
+    ##                                                     
+    ## Hashrate                      -0.28           0.72  
+    ##                              (0.96)          (1.39) 
+    ##                                                     
+    ## Difficulty                            -0.93   -1.49 
+    ##                                      (1.01)  (1.49) 
+    ##                                                     
+    ## Constant     -53.67  -55.13  -37.51   2.50    -7.80 
+    ##              (61.74) (54.32) (81.38) (83.32) (86.64)
+    ##                                                     
+    ## ----------------------------------------------------
+    ## Observations   34      34      34      34      34   
+    ## R2            0.16    0.37    0.37    0.38    0.39  
+    ## Adjusted R2   0.13    0.33    0.31    0.32    0.31  
+    ## ====================================================
+    ## Note:                    *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_CIFR.tex",
           title="Factor Model Results for Cipher Mining (CIFR). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2514,38 +2553,39 @@ stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:21
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:32
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Cipher Mining (CIFR). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_CIFR} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{CIFR} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 2.319$^{**}$ & 0.441 & 0.401 & 0.348 & 0.364 \\ 
-    ##   & (1.026) & (1.093) & (1.113) & (1.097) & (1.115) \\ 
+    ##  SPY & 2.38^{**} & 0.43 & 0.39 & 0.33 & 0.36 \\ 
+    ##   & (0.98) & (1.05) & (1.08) & (1.06) & (1.08) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & 0.983$^{***}$ & 1.039$^{***}$ & 1.062$^{***}$ & 1.022$^{***}$ \\ 
-    ##   &  & (0.320) & (0.350) & (0.329) & (0.351) \\ 
+    ##  BTC &  & 0.99^{***} & 1.03^{***} & 1.06^{***} & 1.01^{***} \\ 
+    ##   &  & (0.31) & (0.33) & (0.32) & (0.34) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & $-$0.450 &  & 0.560 \\ 
-    ##   &  &  & (1.059) &  & (1.484) \\ 
+    ##  Hashrate &  &  & -0.28 &  & 0.72 \\ 
+    ##   &  &  & (0.96) &  & (1.39) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & $-$1.085 & $-$1.489 \\ 
-    ##   &  &  &  & (1.077) & (1.531) \\ 
+    ##  Difficulty &  &  &  & -0.93 & -1.49 \\ 
+    ##   &  &  &  & (1.01) & (1.49) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$43.483 & $-$48.046 & $-$18.551 & 21.818 & 11.178 \\ 
-    ##   & (65.258) & (57.675) & (90.748) & (90.179) & (95.841) \\ 
+    ##  Constant & -53.67 & -55.13 & -37.51 & 2.50 & -7.80 \\ 
+    ##   & (61.74) & (54.32) & (81.38) & (83.32) & (86.64) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.146 & 0.355 & 0.359 & 0.378 & 0.381 \\ 
-    ## Adjusted R$^{2}$ & 0.117 & 0.311 & 0.291 & 0.311 & 0.289 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.16} & \multicolumn{1}{c}{0.37} & \multicolumn{1}{c}{0.37} & \multicolumn{1}{c}{0.38} & \multicolumn{1}{c}{0.39} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.13} & \multicolumn{1}{c}{0.33} & \multicolumn{1}{c}{0.31} & \multicolumn{1}{c}{0.32} & \multicolumn{1}{c}{0.31} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -2556,42 +2596,46 @@ stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## ==========================================================
-    ##                           Dependent variable:             
-    ##              ---------------------------------------------
-    ##                                   HUT                     
-    ##                (1)      (2)       (3)      (4)      (5)   
-    ## ----------------------------------------------------------
-    ## SPY          3.471***  0.873     0.984    0.845    0.926  
-    ##              (1.046)  (0.950)   (0.939)  (0.968)  (0.897) 
-    ##                                                           
-    ## BTC                   1.361*** 1.210***  1.384*** 1.183***
-    ##                       (0.278)   (0.295)  (0.291)  (0.282) 
-    ##                                                           
-    ## Hashrate                         1.230            2.836** 
-    ##                                 (0.894)           (1.195) 
-    ##                                                           
-    ## Difficulty                                -0.321  -2.368* 
-    ##                                          (0.950)  (1.232) 
-    ##                                                           
-    ## Constant     -56.855  -63.170  -143.679* -42.471  -96.387 
-    ##              (66.534) (50.110) (76.552)  (79.595) (77.144)
-    ##                                                           
-    ## ----------------------------------------------------------
-    ## Observations    32       32       32        32       32   
-    ## R2            0.269    0.599     0.625    0.601    0.670  
-    ## Adjusted R2   0.244    0.572     0.584    0.558    0.621  
-    ## ==========================================================
-    ## Note:                          *p<0.1; **p<0.05; ***p<0.01
+    ## =====================================================
+    ##                        Dependent variable:           
+    ##              ----------------------------------------
+    ##                                HUT                   
+    ##                (1)     (2)     (3)      (4)     (5)  
+    ## -----------------------------------------------------
+    ## SPY          3.54***  0.87     1.02    0.84    0.96  
+    ##              (0.99)  (0.91)   (0.91)  (0.93)  (0.86) 
+    ##                                                      
+    ## BTC                  1.36*** 1.23***  1.38*** 1.20***
+    ##                      (0.27)   (0.28)  (0.28)  (0.27) 
+    ##                                                      
+    ## Hashrate                       1.11           2.71** 
+    ##                               (0.81)          (1.12) 
+    ##                                                      
+    ## Difficulty                             -0.27  -2.36* 
+    ##                                       (0.89)  (1.19) 
+    ##                                                      
+    ## Constant     -63.49  -65.49  -134.82* -48.98  -87.55 
+    ##              (62.71) (47.02) (68.41)  (73.01) (69.52)
+    ##                                                      
+    ## -----------------------------------------------------
+    ## Observations   34      34       34      34      34   
+    ## R2            0.28    0.61     0.63    0.61    0.68  
+    ## Adjusted R2   0.26    0.58     0.60    0.57    0.63  
+    ## =====================================================
+    ## Note:                     *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_HUT.tex",
           title="Factor Model Results for Hut 8 Mining (HUT). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2601,38 +2645,39 @@ stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:22
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:33
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Hut 8 Mining (HUT). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_HUT} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{HUT} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 3.471$^{***}$ & 0.873 & 0.984 & 0.845 & 0.926 \\ 
-    ##   & (1.046) & (0.950) & (0.939) & (0.968) & (0.897) \\ 
+    ##  SPY & 3.54^{***} & 0.87 & 1.02 & 0.84 & 0.96 \\ 
+    ##   & (0.99) & (0.91) & (0.91) & (0.93) & (0.86) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & 1.361$^{***}$ & 1.210$^{***}$ & 1.384$^{***}$ & 1.183$^{***}$ \\ 
-    ##   &  & (0.278) & (0.295) & (0.291) & (0.282) \\ 
+    ##  BTC &  & 1.36^{***} & 1.23^{***} & 1.38^{***} & 1.20^{***} \\ 
+    ##   &  & (0.27) & (0.28) & (0.28) & (0.27) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & 1.230 &  & 2.836$^{**}$ \\ 
-    ##   &  &  & (0.894) &  & (1.195) \\ 
+    ##  Hashrate &  &  & 1.11 &  & 2.71^{**} \\ 
+    ##   &  &  & (0.81) &  & (1.12) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & $-$0.321 & $-$2.368$^{*}$ \\ 
-    ##   &  &  &  & (0.950) & (1.232) \\ 
+    ##  Difficulty &  &  &  & -0.27 & -2.36^{*} \\ 
+    ##   &  &  &  & (0.89) & (1.19) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$56.855 & $-$63.170 & $-$143.679$^{*}$ & $-$42.471 & $-$96.387 \\ 
-    ##   & (66.534) & (50.110) & (76.552) & (79.595) & (77.144) \\ 
+    ##  Constant & -63.49 & -65.49 & -134.82^{*} & -48.98 & -87.55 \\ 
+    ##   & (62.71) & (47.02) & (68.41) & (73.01) & (69.52) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.269 & 0.599 & 0.625 & 0.601 & 0.670 \\ 
-    ## Adjusted R$^{2}$ & 0.244 & 0.572 & 0.584 & 0.558 & 0.621 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.28} & \multicolumn{1}{c}{0.61} & \multicolumn{1}{c}{0.63} & \multicolumn{1}{c}{0.61} & \multicolumn{1}{c}{0.68} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.26} & \multicolumn{1}{c}{0.58} & \multicolumn{1}{c}{0.60} & \multicolumn{1}{c}{0.57} & \multicolumn{1}{c}{0.63} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
@@ -2643,42 +2688,46 @@ stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT,
 # Generate summary statistics for the final real returns
 stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR, 
           type='text',
+          align=TRUE,
+          digits=2,
           omit.stat=c("ser","f"))
 ```
 
     ## 
-    ## ==========================================================
-    ##                           Dependent variable:             
-    ##              ---------------------------------------------
-    ##                                  BTDR                     
-    ##                (1)      (2)      (3)      (4)       (5)   
-    ## ----------------------------------------------------------
-    ## SPY           1.306    2.206*   2.178*   2.243*   2.209*  
-    ##              (1.001)  (1.191)  (1.215)  (1.214)   (1.225) 
-    ##                                                           
-    ## BTC                    -0.471   -0.433   -0.502   -0.419  
-    ##                       (0.349)  (0.382)  (0.365)   (0.386) 
-    ##                                                           
-    ## Hashrate                        -0.313            -1.175  
-    ##                                (1.156)            (1.631) 
-    ##                                                           
-    ## Difficulty                               0.423     1.271  
-    ##                                         (1.192)   (1.682) 
-    ##                                                           
-    ## Constant     -22.808  -20.621   -0.135  -47.854   -25.515 
-    ##              (63.677) (62.839) (99.061) (99.794) (105.330)
-    ##                                                           
-    ## ----------------------------------------------------------
-    ## Observations    32       32       32       32       32    
-    ## R2            0.054    0.110    0.112    0.114     0.130  
-    ## Adjusted R2   0.022    0.048    0.017    0.019     0.002  
-    ## ==========================================================
-    ## Note:                          *p<0.1; **p<0.05; ***p<0.01
+    ## ====================================================
+    ##                        Dependent variable:          
+    ##              ---------------------------------------
+    ##                               BTDR                  
+    ##                (1)     (2)     (3)     (4)     (5)  
+    ## ----------------------------------------------------
+    ## SPY           1.43    2.30*   2.25*   2.34*   2.28* 
+    ##              (0.95)  (1.15)  (1.18)  (1.18)  (1.19) 
+    ##                                                     
+    ## BTC                   -0.45   -0.40   -0.47   -0.39 
+    ##                      (0.34)  (0.37)  (0.35)  (0.37) 
+    ##                                                     
+    ## Hashrate                      -0.37           -1.24 
+    ##                              (1.05)          (1.53) 
+    ##                                                     
+    ## Difficulty                            0.32    1.28  
+    ##                                      (1.12)  (1.64) 
+    ##                                                     
+    ## Constant     -27.58  -26.92   -3.72  -46.98  -29.34 
+    ##              (60.16) (59.49) (89.06) (92.38) (95.43)
+    ##                                                     
+    ## ----------------------------------------------------
+    ## Observations   34      34      34      34      34   
+    ## R2            0.07    0.11    0.12    0.12    0.14  
+    ## Adjusted R2   0.04    0.06    0.03    0.03    0.02  
+    ## ====================================================
+    ## Note:                    *p<0.1; **p<0.05; ***p<0.01
 
 ``` r
 # Generate and save output to a LaTeX file
 stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR, 
-          type='latex', 
+          type='latex',
+          align=TRUE,
+          digits=2, 
           font.size="large",
           out="Figures/ModelResults_BTDR.tex",
           title="Factor Model Results for Bitdeer (BTDR). Table generated with the stargazer R package (Hlavac, 2022).", 
@@ -2688,38 +2737,39 @@ stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Tue, Apr 23, 2024 - 18:51:23
+    ## % Date and time: Tue, Jul 09, 2024 - 16:40:34
+    ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Bitdeer (BTDR). Table generated with the stargazer R package (Hlavac, 2022).} 
     ##   \label{ModelResults_BTDR} 
     ## \large 
-    ## \begin{tabular}{@{\extracolsep{5pt}}lccccc} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} D{.}{.}{-2} } 
     ## \\[-1.8ex]\hline 
     ## \hline \\[-1.8ex] 
     ##  & \multicolumn{5}{c}{\textit{Dependent variable:}} \\ 
     ## \cline{2-6} 
     ## \\[-1.8ex] & \multicolumn{5}{c}{BTDR} \\ 
-    ## \\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+    ## \\[-1.8ex] & \multicolumn{1}{c}{(1)} & \multicolumn{1}{c}{(2)} & \multicolumn{1}{c}{(3)} & \multicolumn{1}{c}{(4)} & \multicolumn{1}{c}{(5)}\\ 
     ## \hline \\[-1.8ex] 
-    ##  SPY & 1.306 & 2.206$^{*}$ & 2.178$^{*}$ & 2.243$^{*}$ & 2.209$^{*}$ \\ 
-    ##   & (1.001) & (1.191) & (1.215) & (1.214) & (1.225) \\ 
+    ##  SPY & 1.43 & 2.30^{*} & 2.25^{*} & 2.34^{*} & 2.28^{*} \\ 
+    ##   & (0.95) & (1.15) & (1.18) & (1.18) & (1.19) \\ 
     ##   & & & & & \\ 
-    ##  BTC &  & $-$0.471 & $-$0.433 & $-$0.502 & $-$0.419 \\ 
-    ##   &  & (0.349) & (0.382) & (0.365) & (0.386) \\ 
+    ##  BTC &  & -0.45 & -0.40 & -0.47 & -0.39 \\ 
+    ##   &  & (0.34) & (0.37) & (0.35) & (0.37) \\ 
     ##   & & & & & \\ 
-    ##  Hashrate &  &  & $-$0.313 &  & $-$1.175 \\ 
-    ##   &  &  & (1.156) &  & (1.631) \\ 
+    ##  Hashrate &  &  & -0.37 &  & -1.24 \\ 
+    ##   &  &  & (1.05) &  & (1.53) \\ 
     ##   & & & & & \\ 
-    ##  Difficulty &  &  &  & 0.423 & 1.271 \\ 
-    ##   &  &  &  & (1.192) & (1.682) \\ 
+    ##  Difficulty &  &  &  & 0.32 & 1.28 \\ 
+    ##   &  &  &  & (1.12) & (1.64) \\ 
     ##   & & & & & \\ 
-    ##  Constant & $-$22.808 & $-$20.621 & $-$0.135 & $-$47.854 & $-$25.515 \\ 
-    ##   & (63.677) & (62.839) & (99.061) & (99.794) & (105.330) \\ 
+    ##  Constant & -27.58 & -26.92 & -3.72 & -46.98 & -29.34 \\ 
+    ##   & (60.16) & (59.49) & (89.06) & (92.38) & (95.43) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
-    ## Observations & 32 & 32 & 32 & 32 & 32 \\ 
-    ## R$^{2}$ & 0.054 & 0.110 & 0.112 & 0.114 & 0.130 \\ 
-    ## Adjusted R$^{2}$ & 0.022 & 0.048 & 0.017 & 0.019 & 0.002 \\ 
+    ## Observations & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} & \multicolumn{1}{c}{34} \\ 
+    ## R$^{2}$ & \multicolumn{1}{c}{0.07} & \multicolumn{1}{c}{0.11} & \multicolumn{1}{c}{0.12} & \multicolumn{1}{c}{0.12} & \multicolumn{1}{c}{0.14} \\ 
+    ## Adjusted R$^{2}$ & \multicolumn{1}{c}{0.04} & \multicolumn{1}{c}{0.06} & \multicolumn{1}{c}{0.03} & \multicolumn{1}{c}{0.03} & \multicolumn{1}{c}{0.02} \\ 
     ## \hline 
     ## \hline \\[-1.8ex] 
     ## \textit{Note:}  & \multicolumn{5}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
