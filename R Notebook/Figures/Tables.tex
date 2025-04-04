@@ -1,5 +1,7 @@
 \documentclass[]{article}
+\usepackage[margin=1in]{geometry}
 \usepackage{dcolumn}
+\usepackage{graphicx}
 
 %opening
 \title{\LaTeX~Tables for Bitcoin Mining Stock Project}
@@ -29,6 +31,16 @@
 \subsection{Excess Returns}
 
 \input{SummaryStats_excess.tex}
+
+\pagebreak
+
+\subsection{Nominal Return Correlations}
+
+\begin{figure}[htbp]
+	\label{finalcorplot}
+	\caption{Correlation Matrix Heatmap for Nominal Monthly Returns}
+	\includegraphics[width=\linewidth]{finalcorplot.pdf}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pagebreak
@@ -69,5 +81,29 @@
 \subsection{Bitdeer (BTDR)}
 
 \input{ModelResults_BTDR.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Model Residual Correlations}
+
+\subsection{Model (1): CAPM}
+
+\begin{figure}[htbp]
+	\label{capm_resid_corplot}
+	\caption{Correlation Matrix Heatmap for CAPM Residuals}
+	\includegraphics[width=\linewidth]{capm_resid_corplot.pdf}
+\end{figure}
+
+\subsection{Model (2): CAPM + BTC}
+
+\begin{figure}[htbp]
+	\label{bfm_resid_corplot}
+	\caption{Correlation Matrix Heatmap for CAPM+BTC Residuals}
+	\includegraphics[width=\linewidth]{bfm_resid_corplot.pdf}
+\end{figure}
+
+
 
 \end{document}
