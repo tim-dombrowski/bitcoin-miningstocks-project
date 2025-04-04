@@ -1200,7 +1200,7 @@ summary(CAPM_BTC)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -359.91 -100.80   -2.86  103.13  354.99 
+    ## -359.91 -100.80   -2.85  103.13  354.99 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
@@ -1225,11 +1225,11 @@ summary(CAPM_MARA)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1145.94  -172.39     8.25   209.14   598.35 
+    ## -1145.95  -172.39     8.25   209.14   598.35 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -71.1645    53.0441  -1.342    0.187    
+    ## (Intercept) -71.1644    53.0441  -1.342    0.187    
     ## SPY           5.2605     0.9109   5.775 9.04e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1254,7 +1254,7 @@ summary(CAPM_CLSK)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -48.8838    51.9106  -0.942 0.351867    
+    ## (Intercept) -48.8838    51.9106  -0.942 0.351866    
     ## SPY           3.4624     0.8915   3.884 0.000367 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1329,7 +1329,7 @@ summary(CAPM_HUT)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -51.7733    55.9671  -0.925 0.360345    
+    ## (Intercept) -51.7732    55.9671  -0.925 0.360345    
     ## SPY           3.9023     0.9611   4.060 0.000215 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1462,7 +1462,7 @@ summary(BFM_CLSK)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -48.5198    40.9316  -1.185    0.243    
+    ## (Intercept) -48.5199    40.9316  -1.185    0.243    
     ## SPY           0.9864     0.8546   1.154    0.255    
     ## BTC           1.2237     0.2402   5.094 8.78e-06 ***
     ## ---
@@ -1640,7 +1640,7 @@ summary(HFM_MARA)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -693.79 -132.82   -4.59  129.59  630.68 
+    ## -693.80 -132.82   -4.59  129.59  630.68 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
@@ -1670,7 +1670,7 @@ summary(HFM_CLSK)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -44.1240    60.2777  -0.732    0.469    
+    ## (Intercept) -44.1241    60.2777  -0.732    0.469    
     ## SPY           0.9708     0.8792   1.104    0.276    
     ## BTC           1.2330     0.2604   4.735 2.88e-05 ***
     ## Hashrate     -0.0759     0.7557  -0.100    0.921    
@@ -1696,10 +1696,10 @@ summary(HFM_RIOT)
     ## 
     ## Coefficients:
     ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -68.85949   58.85855  -1.170 0.249135    
+    ## (Intercept) -68.85957   58.85855  -1.170 0.249135    
     ## SPY           1.32094    0.85846   1.539 0.131946    
     ## BTC           1.07304    0.25425   4.220 0.000141 ***
-    ## Hashrate     -0.01243    0.73787  -0.017 0.986650    
+    ## Hashrate     -0.01242    0.73787  -0.017 0.986651    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -1722,8 +1722,8 @@ summary(HFM_CIFR)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -18.3025    67.3075  -0.272 0.787116    
-    ## SPY           0.3444     0.9817   0.351 0.727583    
+    ## (Intercept) -18.3025    67.3075  -0.272 0.787115    
+    ## SPY           0.3444     0.9817   0.351 0.727580    
     ## BTC           1.1242     0.2907   3.867 0.000407 ***
     ## Hashrate     -0.5499     0.8438  -0.652 0.518439    
     ## ---
@@ -1748,7 +1748,7 @@ summary(HFM_HUT)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -77.3213    63.6256  -1.215    0.232    
+    ## (Intercept) -77.3214    63.6256  -1.215    0.232    
     ## SPY           1.2556     0.9280   1.353    0.184    
     ## BTC           1.2983     0.2748   4.724 2.98e-05 ***
     ## Hashrate      0.4481     0.7976   0.562    0.578    
@@ -1812,7 +1812,7 @@ summary(DFM_MARA)
     ## (Intercept) -51.0450    60.3260  -0.846  0.40263    
     ## SPY           2.6033     0.8667   3.004  0.00464 ** 
     ## BTC           1.3193     0.2491   5.295 4.92e-06 ***
-    ## Difficulty   -0.3474     0.7743  -0.449  0.65617    
+    ## Difficulty   -0.3474     0.7744  -0.449  0.65617    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -1835,7 +1835,7 @@ summary(DFM_CLSK)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -24.9122    60.3521  -0.413    0.682    
+    ## (Intercept) -24.9123    60.3521  -0.413    0.682    
     ## SPY           0.9380     0.8671   1.082    0.286    
     ## BTC           1.2548     0.2493   5.034 1.12e-05 ***
     ## Difficulty   -0.4156     0.7747  -0.536    0.595    
@@ -1861,7 +1861,7 @@ summary(DFM_RIOT)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -32.1589    58.5671  -0.549    0.586    
+    ## (Intercept) -32.1590    58.5671  -0.549    0.586    
     ## SPY           1.2468     0.8414   1.482    0.146    
     ## BTC           1.1209     0.2419   4.634 3.95e-05 ***
     ## Difficulty   -0.6587     0.7518  -0.876    0.386    
@@ -1887,8 +1887,8 @@ summary(DFM_CIFR)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  29.0518    65.7351   0.442 0.660965    
-    ## SPY           0.2948     0.9444   0.312 0.756595    
+    ## (Intercept)  29.0517    65.7351   0.442 0.660965    
+    ## SPY           0.2948     0.9444   0.312 0.756592    
     ## BTC           1.1612     0.2715   4.277 0.000119 ***
     ## Difficulty   -1.3942     0.8438  -1.652 0.106489    
     ## ---
@@ -1939,7 +1939,7 @@ summary(DFM_BTDR)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)  
-    ## (Intercept) -17.7918    83.8735  -0.212   0.8331  
+    ## (Intercept) -17.7919    83.8735  -0.212   0.8331  
     ## SPY           2.0875     1.2050   1.732   0.0911 .
     ## BTC          -0.2024     0.3464  -0.584   0.5623  
     ## Difficulty    0.1358     1.0766   0.126   0.9003  
@@ -1974,7 +1974,7 @@ summary(FFM_MARA)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -66.5883    63.6942  -1.045  0.30243    
+    ## (Intercept) -66.5885    63.6943  -1.045  0.30243    
     ## SPY           2.7039     0.8800   3.073  0.00391 ** 
     ## BTC           1.2617     0.2606   4.842 2.18e-05 ***
     ## Hashrate      0.7971     1.0035   0.794  0.43197    
@@ -2001,7 +2001,7 @@ summary(FFM_CLSK)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -31.4238    64.1565  -0.490    0.627    
+    ## (Intercept) -31.4239    64.1565  -0.490    0.627    
     ## SPY           0.9801     0.8864   1.106    0.276    
     ## BTC           1.2307     0.2625   4.688  3.5e-05 ***
     ## Hashrate      0.3339     1.0108   0.330    0.743    
@@ -2028,10 +2028,10 @@ summary(FFM_RIOT)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -46.1848    61.9069  -0.746 0.460236    
+    ## (Intercept) -46.1849    61.9069  -0.746 0.460235    
     ## SPY           1.3376     0.8553   1.564 0.126137    
     ## BTC           1.0690     0.2533   4.220 0.000146 ***
-    ## Hashrate      0.7193     0.9754   0.737 0.465396    
+    ## Hashrate      0.7193     0.9754   0.737 0.465395    
     ## Difficulty   -1.1452     1.0035  -1.141 0.260930    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -2055,10 +2055,10 @@ summary(FFM_CIFR)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  17.3438    69.7055   0.249 0.804843    
-    ## SPY           0.3705     0.9630   0.385 0.702547    
+    ## (Intercept)  17.3438    69.7055   0.249 0.804844    
+    ## SPY           0.3706     0.9630   0.385 0.702544    
     ## BTC           1.1178     0.2852   3.919 0.000358 ***
-    ## Hashrate      0.6004     1.0982   0.547 0.587791    
+    ## Hashrate      0.6004     1.0982   0.547 0.587790    
     ## Difficulty   -1.8003     1.1299  -1.593 0.119372    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -2082,7 +2082,7 @@ summary(FFM_HUT)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -39.5354    65.3233  -0.605   0.5486    
+    ## (Intercept) -39.5355    65.3233  -0.605   0.5486    
     ## SPY           1.2833     0.9025   1.422   0.1632    
     ## BTC           1.2916     0.2673   4.832 2.24e-05 ***
     ## Hashrate      1.6674     1.0292   1.620   0.1135    
@@ -2109,7 +2109,7 @@ summary(FFM_BTDR)
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)   8.3770    88.2131   0.095    0.925
+    ## (Intercept)   8.3769    88.2131   0.095    0.925
     ## SPY           1.9181     1.2187   1.574    0.124
     ## BTC          -0.1056     0.3609  -0.293    0.771
     ## Hashrate     -1.3420     1.3898  -0.966    0.340
@@ -2179,7 +2179,7 @@ stargazer(monthly_nominal_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:49
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:10
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset nominal returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2247,7 +2247,7 @@ stargazer(monthly_real_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:50
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:10
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset real returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2313,7 +2313,7 @@ stargazer(monthly_excess_final,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:50
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:11
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Summary Statistics for the Final Monthly Dataset. Asset excess returns and growth rates are all annualized and measured in percentage units. Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2374,7 +2374,7 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
     ## Difficulty                            -0.35   -0.89 
     ##                                      (0.77)  (1.03) 
     ##                                                     
-    ## Constant     -71.16  -70.78* -84.14  -51.04  -66.59 
+    ## Constant     -71.16  -70.78* -84.14  -51.05  -66.59 
     ##              (53.04) (40.87) (60.12) (60.33) (63.69)
     ##                                                     
     ## ----------------------------------------------------
@@ -2399,7 +2399,7 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:51
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:11
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Marathon Digital Holdings (MARA). Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2425,7 +2425,7 @@ stargazer(CAPM_MARA, BFM_MARA, HFM_MARA, DFM_MARA, FFM_MARA,
     ##  Difficulty &  &  &  & -0.35 & -0.89 \\ 
     ##   &  &  &  & (0.77) & (1.03) \\ 
     ##   & & & & & \\ 
-    ##  Constant & -71.16 & -70.78^{*} & -84.14 & -51.04 & -66.59 \\ 
+    ##  Constant & -71.16 & -70.78^{*} & -84.14 & -51.05 & -66.59 \\ 
     ##   & (53.04) & (40.87) & (60.12) & (60.33) & (63.69) \\ 
     ##   & & & & & \\ 
     ## \hline \\[-1.8ex] 
@@ -2491,7 +2491,7 @@ stargazer(CAPM_CLSK, BFM_CLSK, HFM_CLSK, DFM_CLSK, FFM_CLSK,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:52
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:12
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Cleanspark (CLSK). Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2583,7 +2583,7 @@ stargazer(CAPM_RIOT, BFM_RIOT, HFM_RIOT, DFM_RIOT, FFM_RIOT,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:53
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:13
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Riot Blockchain (RIOT). Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2675,7 +2675,7 @@ stargazer(CAPM_CIFR, BFM_CIFR, HFM_CIFR, DFM_CIFR, FFM_CIFR,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:54
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:14
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Cipher Mining (CIFR). Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2767,7 +2767,7 @@ stargazer(CAPM_HUT, BFM_HUT, HFM_HUT, DFM_HUT, FFM_HUT,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:55
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:15
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Hut 8 Mining (HUT). Table generated with the stargazer R package (Hlavac, 2022).} 
@@ -2859,7 +2859,7 @@ stargazer(CAPM_BTDR, BFM_BTDR, HFM_BTDR, DFM_BTDR, FFM_BTDR,
 
     ## 
     ## % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-    ## % Date and time: Thu, Apr 03, 2025 - 19:02:56
+    ## % Date and time: Thu, Apr 03, 2025 - 19:10:16
     ## % Requires LaTeX packages: dcolumn 
     ## \begin{table}[!htbp] \centering 
     ##   \caption{Factor Model Results for Bitdeer (BTDR). Table generated with the stargazer R package (Hlavac, 2022).} 

@@ -11,11 +11,11 @@ This project aims to analyze the performance of publicly traded bitcoin mining c
 * [Hut 8 Mining (HUT)](https://hut8.com/), and
 * [Bitdeer Technologies Group (BTDR)](https://www.bitdeer.com/).
 
-In addition to the relationship between these stocks and the price of bitcoin (BTC), we will also incorporate other mining-related factors that may influence the stock prices of these companies. These include the mining hashrate, difficulty, and trading volume of BTC.
+In addition to exploring the relationship between these stocks and the price of bitcoin (BTC), the R Notebook will also incorporate some other mining-related factors to build a multivariate model explaining the stock returns. These include the mining hashrate, difficulty, and trading volume of BTC. The first two of those are imported via the [mempool.space API](https://mempool.space/docs/api/rest), and the price/volume data is imported via Yahoo Finance (using the [quantmod R package](https://cran.r-project.org/package=quantmod)).
 
 ### Other Bitcoin-Related Projects
 
-For some other R Notebook project demos related to bitcoin, you can check out the following repositories:
+For some other R Notebook projects related to Bitcoin, check out these other repositories:
 
 * [bitcoin-timeseries-project](https://github.com/tim-dombrowski/bitcoin-timeseries-project) - This project focuses exploring the time series properties of bitcoin price data, including autocorrelation, stationarity, and seasonality.
 * [bitcoin-factoranalysis-project](https://github.com/tim-dombrowski/bitcoin-factoranalysis-project) - This project focuses on applying traditional asset pricing models to bitcoin (e.g. CAPM, Fama-French, etc) and exploring some other potential factors related to the Bitcoin blockchain, such as hashrate or trading volume.

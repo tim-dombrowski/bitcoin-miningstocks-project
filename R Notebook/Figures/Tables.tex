@@ -2,9 +2,13 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{dcolumn}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks = true,
+	urlcolor = black
+}
 
-%opening
-\title{\LaTeX~Tables for Bitcoin Mining Stock Project}
+\title{\LaTeX~Tables for Bitcoin Mining Stock Analysis}
 \author{Tim Dombrowski}
 \date{\today}
 
@@ -13,6 +17,10 @@
 \maketitle
 
 \large
+
+\section{Data Work and Project Background}
+
+See the \href{https://github.com/tim-dombrowski/bitcoin-miningstocks-project/blob/main/R\%20Notebook/miningstocks.Rmd}{miningstocks.Rmd} R Notebook for a detailed write-up of the data work to generate these tables. More broadly, see \href{https://github.com/tim-dombrowski/bitcoin-miningstocks-project}{this project's GitHub repository} for more details on the project background and how to replicate the analysis.
 
 \section{Summary Statistics}
 
